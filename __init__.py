@@ -6,21 +6,6 @@ from .em_object import ObjectEmulator
 from typing import Iterator
 
 
-class EmulatorContainer(dict):
-    
-    def __getitem__(self, __k) -> ObjectEmulator:
-        return super().__getitem__(__k)
-    
-    def __iter__(self) -> Iterator[ObjectEmulator]:
-        return iter([self[k] for k in self.keys() if type(k) is int])
-    
-    def __len__(self) -> int:
-        return len([x for x in self.keys() if type(x) is int])
-    
-    def __str__(self) -> str:
-        return "Emulators(" + ", ".join([self[k].__str__() for k in self.keys() if type(k) is int]) + ")"
-
-
 class LDPlayer:
     """
     Main cotroll all player of LDPlayer
@@ -138,3 +123,18 @@ class LDPlayer:
         self.quit()
         if traceback:
             print(traceback)
+
+
+class EmulatorContainer(dict):
+    
+    def __getitem__(self, __k) -> ObjectEmulator:
+        return super().__getitem__(__k)
+    
+    def __iter__(self) -> Iterator[ObjectEmulator]:
+        return iter([self[k] for k in self.keys() if type(k) is int])
+    
+    def __len__(self) -> int:
+        return len([x for x in self.keys() if type(x) is int])
+    
+    def __str__(self) -> str:
+        return "Emulators(" + ", ".join([self[k].__str__() for k in self.keys() if type(k) is int]) + ")"
