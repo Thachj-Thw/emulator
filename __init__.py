@@ -27,6 +27,10 @@ class LDPlayer:
         for info in self.list_index_name():
             e = ObjectEmulator(self, info["index"], info["name"])
             self.emulators.update({info["index"]: e, info["name"]: e})
+        self.adb = os.path.join(ld_dir, "adb.exe")
+        if not os.path.isfile(self.abd):
+            raise Exception("ADB not found!")
+        os.system(f'"{self.adb}" start-server')
     
     def new(self, name: str = None) -> ObjectEmulator:
         exists = self.list_index()
@@ -107,7 +111,8 @@ class LDPlayer:
     
     def quit(self) -> bool:
         cmd = f'{self.controller} quitall'
-        subprocess.Popen(cmd, **subprocess_args()).wait()
+        self._run_cmd(cmd)
+        os.system(f'"{self.adb}" kill-server')
     
     def _run_cmd(self, cmd: str) -> str:
         p = subprocess.Popen(cmd, **subprocess_args())

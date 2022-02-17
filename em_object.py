@@ -10,6 +10,7 @@ import base64
 
 # type
 position = Union[list[int, int], tuple[int, int]]
+DUMP = os.path.join(os.path.normpath(os.path.dirname(__file__)), "dump", "window_dump.xml")
 
 
 class ObjectEmulator:
@@ -215,7 +216,7 @@ class ObjectEmulator:
     
     def capture(self, as_file):
         path = os.path.normpath(as_file)
-        cmd = f"shell screencap -p | base64 | sed 's/\\r\\r$//'"
+        cmd = "shell screencap -p | base64 | sed 's/\\r\\r$//'"
         with open(path, mode="wb") as file:
             file.write(base64.b64decode(self._run_adb(cmd)))
         return self
@@ -304,6 +305,16 @@ class ObjectEmulator:
         else:
             self.error = f'The path "{img_path}" invalid'
         return self
+    
+    def dump_xml(self, as_file: str):
+        path = os.path.normpath(as_file)
+        cmd = 'shell uiautomator dump /sdcard/window_dump.xml'
+        self._run_adb(cmd)
+        self.pull("/sdcard/window_dump.xml", path)
+        return self
+    
+    def get_node(self, by, value: str):
+        pass
     
     def wait(self, second: float):
         time.sleep(second)
