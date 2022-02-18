@@ -322,12 +322,12 @@ class ObjectEmulator:
     
     def get_node(self, by: int, value: str) -> Optional[Node]:
         self.dump_xml(self.dump)
-        with open(self.dump, mode="r") as file:
+        with open(self.dump, mode="r", encoding="utf-8") as file:
             xml = file.read()
         if by == By.TEXT:
             if node := re.search(r'(?<=<node )index="\d+" text="%s".*?(?=/>|>)' % value, xml):
                 prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop]
+                values = [p.split("=\"")[1] for p in prop[:-1]]
                 index = int(values[0])
                 checkable = False if values[6] == "false" else True
                 checked = False if values[7] == "false" else True
@@ -346,7 +346,7 @@ class ObjectEmulator:
         elif by == By.RESOURCE_ID:
             if node := re.search(r'(?<=<node )index="\d+" text=".+" resource-id="%s"(?=>)' % value, xml):
                 prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop]
+                values = [p.split("=\"")[1] for p in prop[:-1]]
                 index = int(values[0])
                 checkable = False if values[6] == "false" else True
                 checked = False if values[7] == "false" else True
@@ -365,7 +365,7 @@ class ObjectEmulator:
         elif by == By.CLASS:
             if node := re.search(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class="%s"(?=>)' % value, xml):
                 prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop]
+                values = [p.split("=\"")[1] for p in prop[:-1]]
                 index = int(values[0])
                 checkable = False if values[6] == "false" else True
                 checked = False if values[7] == "false" else True
@@ -384,7 +384,7 @@ class ObjectEmulator:
         elif by == By.PACKAGE:
             if node := re.search(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class=".*" package="%s"(?=>)' % value, xml):
                 prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop]
+                values = [p.split("=\"")[1] for p in prop[:-1]]
                 index = int(values[0])
                 checkable = False if values[6] == "false" else True
                 checked = False if values[7] == "false" else True
@@ -403,13 +403,13 @@ class ObjectEmulator:
         
     def get_nodes(self, by: int, value: str) -> list[Node]:
         self.dump_xml(self.dump)
-        with open(self.dump, mode="r") as file:
+        with open(self.dump, mode="r", encoding="utf-8") as file:
             xml = file.read()
         if by == By.TEXT:
             result = []
             for node in re.findall(r'(?<=<node )index="\d+" text="%s".*?(?=/>|>)' % value, xml):
-                prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop]
+                prop = node.split("\" ")
+                values = [p.split("=\"")[1] for p in prop[:-1]]
                 index = int(values[0])
                 checkable = False if values[6] == "false" else True
                 checked = False if values[7] == "false" else True
@@ -429,8 +429,8 @@ class ObjectEmulator:
         elif by == By.RESOURCE_ID:
             result = []
             for node in re.findall(r'(?<=<node )index="\d+" text=".+" resource-id="%s"(?=>)' % value, xml):
-                prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop]
+                prop = node.split("\" ")
+                values = [p.split("=\"")[1] for p in prop[:-1]]
                 index = int(values[0])
                 checkable = False if values[6] == "false" else True
                 checked = False if values[7] == "false" else True
@@ -450,8 +450,8 @@ class ObjectEmulator:
         elif by == By.CLASS:
             result = []
             for node in re.findall(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class="%s"(?=>)' % value, xml):
-                prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop]
+                prop = node.split("\" ")
+                values = [p.split("=\"")[1] for p in prop[:-1]]
                 index = int(values[0])
                 checkable = False if values[6] == "false" else True
                 checked = False if values[7] == "false" else True
@@ -471,8 +471,8 @@ class ObjectEmulator:
         elif by == By.PACKAGE:
             result = []
             for node in re.findall(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class=".*" package="%s"(?=>)' % value, xml):
-                prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop]
+                prop = node.split("\" ")
+                values = [p.split("=\"")[1] for p in prop[:-1]]
                 index = int(values[0])
                 checkable = False if values[6] == "false" else True
                 checked = False if values[7] == "false" else True
