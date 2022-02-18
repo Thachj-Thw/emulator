@@ -14,12 +14,12 @@ class Node:
         enabled: bool = True,
         focussable: bool = False,
         focused: bool = False,
-        scrollabled: bool = False,
+        scrollable: bool = False,
         long_clickable: bool = False,
         password: bool = False,
         selected: bool = False,
-        bounds: tuple[tuple[int, int], tuple[int, int]] = ((0, 0), (0, 0))
-    ) -> None:  
+        bounds: list[tuple[int, int], tuple[int, int]] = [(0, 0), (0, 0)]
+    ) -> None:
         self.parent = parent
         self.index = index
         self.text = text
@@ -33,7 +33,7 @@ class Node:
         self.enabled = enabled
         self.focussable = focussable
         self.focused = focused
-        self.scrollabled = scrollabled
+        self.scrollabled = scrollable
         self.long_clickable = long_clickable
         self.password = password
         self.selected = selected
@@ -48,3 +48,10 @@ class Node:
     def __str__(self):
         return f'<node index="{self.index}" text="{self.text}" resource-id="{self.resource_id}"'\
                f'class="{self.class_}" package="{self.package}" ...>'
+
+
+class By:
+    TEXT = 0
+    RESOURCE_ID = 1
+    CLASS = 2
+    PACKAGE = 3

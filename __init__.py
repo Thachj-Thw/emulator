@@ -28,7 +28,7 @@ class LDPlayer:
             e = ObjectEmulator(self, info["index"], info["name"])
             self.emulators.update({info["index"]: e, info["name"]: e})
         self.adb = os.path.join(ld_dir, "adb.exe")
-        if not os.path.isfile(self.abd):
+        if not os.path.isfile(self.adb):
             raise Exception("ADB not found!")
         os.system(f'"{self.adb}" start-server')
     

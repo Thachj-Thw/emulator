@@ -1,19 +1,25 @@
 from __future__ import annotations
+from importlib import resources
 from typing import Union, Optional
 import subprocess
 from .option import EmulatorOption
 from .args import subprocess_args
 from .opencv import get_pos_img, existed
+from .node import Node, By
 import time
 import os
 import base64
+import ctypes
+import re
 
 # type
 position = Union[list[int, int], tuple[int, int]]
-DUMP = os.path.join(os.path.normpath(os.path.dirname(__file__)), "dump", "window_dump.xml")
 
 
 class ObjectEmulator:
+    sed = os.path.join(os.path.dirname(__file__), "sed", "sed.exe")
+    dump = os.path.join(os.path.normpath(os.path.dirname(__file__)), "dump", "window_dump.xml")
+    
     def __init__(
         self, 
         parent, 
@@ -39,27 +45,28 @@ class ObjectEmulator:
     
     def start(self, wait: bool = True):
         if not self.is_running():
-            cmd = f'{self.controller} launch {self.this}'
-            self._run_cmd(cmd)
+            self._run_cmd(f'{self.controller} launch {self.this}')
             if wait:
                 self.wait_to_started()
+                self._update()
             else:
-                time.sleep(3)
-        self._update()
-        return self
-    
-    def _update(self) -> None:
-        for em in self._run_cmd(f'{self.controller} list2').split("\r\n")[:-1]:
-            args = em.split(",")
-            if args[0] == str(self.index):
-                self.top_hwnd = int(args[2])
-                self.bind_hwnd = int(args[3])
-                self.android = int(args[4])
-                self.pid = int(args[5])
-                self.pid_vbox = int(args[6])
-                break
+                while not self._update():
+                    time.sleep(.5)
         else:
-            raise Exception("Error starting emulator")
+            self._update()
+        return self
+
+    def _update(self) -> bool:
+        cmd = f'{self.controller} list2 | "{self.sed}" -n "/^{self.index}/p"'
+        args = self._run_cmd(cmd)[:-2].split(",")
+        if args[2] != "0":
+            self.top_hwnd = int(args[2])
+            self.bind_hwnd = int(args[3])
+            self.android = int(args[4])
+            self.pid = int(args[5])
+            self.pid_vbox = int(args[6])
+            return True
+        return False
     
     def wait_to_started(self, timeout=60):
         timer = time.perf_counter()
@@ -313,11 +320,187 @@ class ObjectEmulator:
         self.pull("/sdcard/window_dump.xml", path)
         return self
     
-    def get_node(self, by, value: str):
-        pass
+    def get_node(self, by: int, value: str) -> Optional[Node]:
+        self.dump_xml(self.dump)
+        with open(self.dump, mode="r") as file:
+            xml = file.read()
+        if by == By.TEXT:
+            if node := re.search(r'(?<=<node )index="\d+" text="%s".*?(?=/>|>)' % value, xml):
+                prop = node.group().split("\" ")
+                values = [p.split("=\"")[1] for p in prop]
+                index = int(values[0])
+                checkable = False if values[6] == "false" else True
+                checked = False if values[7] == "false" else True
+                clickable = False if values[8] == "false" else True
+                enable = False if values[9] == "false" else True
+                focusable = False if values[10] == "false" else True
+                focused = False if values[11] == "false" else True
+                scrollable = False if values[12] == "false" else True
+                long_clickable = False if values[13] == "false" else True
+                password = False if values[14] == "false" else True
+                selected = False if values[15] == "false" else True
+                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
+                return Node(self, index, values[1], values[2], values[3], values[4], values[5], 
+                            checkable, checked, clickable, enable, focusable, focused, scrollable, 
+                            long_clickable, password, selected, bounds)
+        elif by == By.RESOURCE_ID:
+            if node := re.search(r'(?<=<node )index="\d+" text=".+" resource-id="%s"(?=>)' % value, xml):
+                prop = node.group().split("\" ")
+                values = [p.split("=\"")[1] for p in prop]
+                index = int(values[0])
+                checkable = False if values[6] == "false" else True
+                checked = False if values[7] == "false" else True
+                clickable = False if values[8] == "false" else True
+                enable = False if values[9] == "false" else True
+                focusable = False if values[10] == "false" else True
+                focused = False if values[11] == "false" else True
+                scrollable = False if values[12] == "false" else True
+                long_clickable = False if values[13] == "false" else True
+                password = False if values[14] == "false" else True
+                selected = False if values[15] == "false" else True
+                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
+                return Node(self, index, values[1], values[2], values[3], values[4], values[5], 
+                            checkable, checked, clickable, enable, focusable, focused, scrollable, 
+                            long_clickable, password, selected, bounds)
+        elif by == By.CLASS:
+            if node := re.search(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class="%s"(?=>)' % value, xml):
+                prop = node.group().split("\" ")
+                values = [p.split("=\"")[1] for p in prop]
+                index = int(values[0])
+                checkable = False if values[6] == "false" else True
+                checked = False if values[7] == "false" else True
+                clickable = False if values[8] == "false" else True
+                enable = False if values[9] == "false" else True
+                focusable = False if values[10] == "false" else True
+                focused = False if values[11] == "false" else True
+                scrollable = False if values[12] == "false" else True
+                long_clickable = False if values[13] == "false" else True
+                password = False if values[14] == "false" else True
+                selected = False if values[15] == "false" else True
+                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
+                return Node(self, index, values[1], values[2], values[3], values[4], values[5], 
+                            checkable, checked, clickable, enable, focusable, focused, scrollable, 
+                            long_clickable, password, selected, bounds)
+        elif by == By.PACKAGE:
+            if node := re.search(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class=".*" package="%s"(?=>)' % value, xml):
+                prop = node.group().split("\" ")
+                values = [p.split("=\"")[1] for p in prop]
+                index = int(values[0])
+                checkable = False if values[6] == "false" else True
+                checked = False if values[7] == "false" else True
+                clickable = False if values[8] == "false" else True
+                enable = False if values[9] == "false" else True
+                focusable = False if values[10] == "false" else True
+                focused = False if values[11] == "false" else True
+                scrollable = False if values[12] == "false" else True
+                long_clickable = False if values[13] == "false" else True
+                password = False if values[14] == "false" else True
+                selected = False if values[15] == "false" else True
+                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
+                return Node(self, index, values[1], values[2], values[3], values[4], values[5], 
+                            checkable, checked, clickable, enable, focusable, focused, scrollable, 
+                            long_clickable, password, selected, bounds)
+        
+    def get_nodes(self, by: int, value: str) -> list[Node]:
+        self.dump_xml(self.dump)
+        with open(self.dump, mode="r") as file:
+            xml = file.read()
+        if by == By.TEXT:
+            result = []
+            for node in re.findall(r'(?<=<node )index="\d+" text="%s".*?(?=/>|>)' % value, xml):
+                prop = node.group().split("\" ")
+                values = [p.split("=\"")[1] for p in prop]
+                index = int(values[0])
+                checkable = False if values[6] == "false" else True
+                checked = False if values[7] == "false" else True
+                clickable = False if values[8] == "false" else True
+                enable = False if values[9] == "false" else True
+                focusable = False if values[10] == "false" else True
+                focused = False if values[11] == "false" else True
+                scrollable = False if values[12] == "false" else True
+                long_clickable = False if values[13] == "false" else True
+                password = False if values[14] == "false" else True
+                selected = False if values[15] == "false" else True
+                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
+                result.append(Node(self, index, values[1], values[2], values[3], values[4], values[5], 
+                                   checkable, checked, clickable, enable, focusable, focused, scrollable, 
+                                   long_clickable, password, selected, bounds))
+            return result
+        elif by == By.RESOURCE_ID:
+            result = []
+            for node in re.findall(r'(?<=<node )index="\d+" text=".+" resource-id="%s"(?=>)' % value, xml):
+                prop = node.group().split("\" ")
+                values = [p.split("=\"")[1] for p in prop]
+                index = int(values[0])
+                checkable = False if values[6] == "false" else True
+                checked = False if values[7] == "false" else True
+                clickable = False if values[8] == "false" else True
+                enable = False if values[9] == "false" else True
+                focusable = False if values[10] == "false" else True
+                focused = False if values[11] == "false" else True
+                scrollable = False if values[12] == "false" else True
+                long_clickable = False if values[13] == "false" else True
+                password = False if values[14] == "false" else True
+                selected = False if values[15] == "false" else True
+                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
+                result.append(Node(self, index, values[1], values[2], values[3], values[4], values[5], 
+                              checkable, checked, clickable, enable, focusable, focused, scrollable, 
+                              long_clickable, password, selected, bounds))
+            return result
+        elif by == By.CLASS:
+            result = []
+            for node in re.findall(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class="%s"(?=>)' % value, xml):
+                prop = node.group().split("\" ")
+                values = [p.split("=\"")[1] for p in prop]
+                index = int(values[0])
+                checkable = False if values[6] == "false" else True
+                checked = False if values[7] == "false" else True
+                clickable = False if values[8] == "false" else True
+                enable = False if values[9] == "false" else True
+                focusable = False if values[10] == "false" else True
+                focused = False if values[11] == "false" else True
+                scrollable = False if values[12] == "false" else True
+                long_clickable = False if values[13] == "false" else True
+                password = False if values[14] == "false" else True
+                selected = False if values[15] == "false" else True
+                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
+                result.append(Node(self, index, values[1], values[2], values[3], values[4], values[5], 
+                              checkable, checked, clickable, enable, focusable, focused, scrollable, 
+                              long_clickable, password, selected, bounds))
+            return result
+        elif by == By.PACKAGE:
+            result = []
+            for node in re.findall(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class=".*" package="%s"(?=>)' % value, xml):
+                prop = node.group().split("\" ")
+                values = [p.split("=\"")[1] for p in prop]
+                index = int(values[0])
+                checkable = False if values[6] == "false" else True
+                checked = False if values[7] == "false" else True
+                clickable = False if values[8] == "false" else True
+                enable = False if values[9] == "false" else True
+                focusable = False if values[10] == "false" else True
+                focused = False if values[11] == "false" else True
+                scrollable = False if values[12] == "false" else True
+                long_clickable = False if values[13] == "false" else True
+                password = False if values[14] == "false" else True
+                selected = False if values[15] == "false" else True
+                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
+                result.append(Node(self, index, values[1], values[2], values[3], values[4], values[5], 
+                              checkable, checked, clickable, enable, focusable, focused, scrollable, 
+                              long_clickable, password, selected, bounds))
+            return result
+        return []
     
     def wait(self, second: float):
         time.sleep(second)
+        return self
+    
+    def hide(self):
+        ctypes.windll.user32.ShowWindow(self.top_hwnd, 0)
+        return self
+    
+    def show(self):
+        ctypes.windll.user32.ShowWindow(self.top_hwnd, 1)
         return self
     
     def _run_adb(self, cmd: str, decode: bool = True) -> Union[str, bytes]:
@@ -328,7 +511,7 @@ class ObjectEmulator:
 
     @staticmethod
     def _run_cmd(cmd: str, decode: bool = True) -> Union[str, bytes]:
-        p = subprocess.Popen(cmd, **subprocess_args())
+        p = subprocess.Popen(cmd, **subprocess_args(), shell=True)
         o, e = p.communicate()
         if p.wait():
             return e.decode("utf-8") if decode else e
