@@ -326,170 +326,61 @@ class ObjectEmulator:
             xml = file.read()
         if by == By.TEXT:
             if node := re.search(r'(?<=<node )index="\d+" text="%s".*?(?=/>|>)' % value, xml):
-                prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop[:-1]]
-                index = int(values[0])
-                checkable = False if values[6] == "false" else True
-                checked = False if values[7] == "false" else True
-                clickable = False if values[8] == "false" else True
-                enable = False if values[9] == "false" else True
-                focusable = False if values[10] == "false" else True
-                focused = False if values[11] == "false" else True
-                scrollable = False if values[12] == "false" else True
-                long_clickable = False if values[13] == "false" else True
-                password = False if values[14] == "false" else True
-                selected = False if values[15] == "false" else True
-                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
-                return Node(self, index, values[1], values[2], values[3], values[4], values[5], 
-                            checkable, checked, clickable, enable, focusable, focused, scrollable, 
-                            long_clickable, password, selected, bounds)
+                return self._create_node(node.group())
         elif by == By.RESOURCE_ID:
             if node := re.search(r'(?<=<node )index="\d+" text=".+" resource-id="%s"(?=>)' % value, xml):
-                prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop[:-1]]
-                index = int(values[0])
-                checkable = False if values[6] == "false" else True
-                checked = False if values[7] == "false" else True
-                clickable = False if values[8] == "false" else True
-                enable = False if values[9] == "false" else True
-                focusable = False if values[10] == "false" else True
-                focused = False if values[11] == "false" else True
-                scrollable = False if values[12] == "false" else True
-                long_clickable = False if values[13] == "false" else True
-                password = False if values[14] == "false" else True
-                selected = False if values[15] == "false" else True
-                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
-                return Node(self, index, values[1], values[2], values[3], values[4], values[5], 
-                            checkable, checked, clickable, enable, focusable, focused, scrollable, 
-                            long_clickable, password, selected, bounds)
+                return self._create_node(node.group())
         elif by == By.CLASS:
             if node := re.search(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class="%s"(?=>)' % value, xml):
-                prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop[:-1]]
-                index = int(values[0])
-                checkable = False if values[6] == "false" else True
-                checked = False if values[7] == "false" else True
-                clickable = False if values[8] == "false" else True
-                enable = False if values[9] == "false" else True
-                focusable = False if values[10] == "false" else True
-                focused = False if values[11] == "false" else True
-                scrollable = False if values[12] == "false" else True
-                long_clickable = False if values[13] == "false" else True
-                password = False if values[14] == "false" else True
-                selected = False if values[15] == "false" else True
-                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
-                return Node(self, index, values[1], values[2], values[3], values[4], values[5], 
-                            checkable, checked, clickable, enable, focusable, focused, scrollable, 
-                            long_clickable, password, selected, bounds)
+                return self._create_node(node.group())
         elif by == By.PACKAGE:
             if node := re.search(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class=".*" package="%s"(?=>)' % value, xml):
-                prop = node.group().split("\" ")
-                values = [p.split("=\"")[1] for p in prop[:-1]]
-                index = int(values[0])
-                checkable = False if values[6] == "false" else True
-                checked = False if values[7] == "false" else True
-                clickable = False if values[8] == "false" else True
-                enable = False if values[9] == "false" else True
-                focusable = False if values[10] == "false" else True
-                focused = False if values[11] == "false" else True
-                scrollable = False if values[12] == "false" else True
-                long_clickable = False if values[13] == "false" else True
-                password = False if values[14] == "false" else True
-                selected = False if values[15] == "false" else True
-                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
-                return Node(self, index, values[1], values[2], values[3], values[4], values[5], 
-                            checkable, checked, clickable, enable, focusable, focused, scrollable, 
-                            long_clickable, password, selected, bounds)
+                return self._create_node(node.group())
         
     def get_nodes(self, by: int, value: str) -> list[Node]:
         self.dump_xml(self.dump)
         with open(self.dump, mode="r", encoding="utf-8") as file:
             xml = file.read()
         if by == By.TEXT:
-            result = []
+            nodes = []
             for node in re.findall(r'(?<=<node )index="\d+" text="%s".*?(?=/>|>)' % value, xml):
-                prop = node.split("\" ")
-                values = [p.split("=\"")[1] for p in prop[:-1]]
-                index = int(values[0])
-                checkable = False if values[6] == "false" else True
-                checked = False if values[7] == "false" else True
-                clickable = False if values[8] == "false" else True
-                enable = False if values[9] == "false" else True
-                focusable = False if values[10] == "false" else True
-                focused = False if values[11] == "false" else True
-                scrollable = False if values[12] == "false" else True
-                long_clickable = False if values[13] == "false" else True
-                password = False if values[14] == "false" else True
-                selected = False if values[15] == "false" else True
-                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
-                result.append(Node(self, index, values[1], values[2], values[3], values[4], values[5], 
-                                   checkable, checked, clickable, enable, focusable, focused, scrollable, 
-                                   long_clickable, password, selected, bounds))
-            return result
+                nodes.append(self._create_node(node))
+            return nodes
         elif by == By.RESOURCE_ID:
-            result = []
+            nodes = []
             for node in re.findall(r'(?<=<node )index="\d+" text=".+" resource-id="%s"(?=>)' % value, xml):
-                prop = node.split("\" ")
-                values = [p.split("=\"")[1] for p in prop[:-1]]
-                index = int(values[0])
-                checkable = False if values[6] == "false" else True
-                checked = False if values[7] == "false" else True
-                clickable = False if values[8] == "false" else True
-                enable = False if values[9] == "false" else True
-                focusable = False if values[10] == "false" else True
-                focused = False if values[11] == "false" else True
-                scrollable = False if values[12] == "false" else True
-                long_clickable = False if values[13] == "false" else True
-                password = False if values[14] == "false" else True
-                selected = False if values[15] == "false" else True
-                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
-                result.append(Node(self, index, values[1], values[2], values[3], values[4], values[5], 
-                              checkable, checked, clickable, enable, focusable, focused, scrollable, 
-                              long_clickable, password, selected, bounds))
-            return result
+                nodes.append(self._create_node(node))
+            return nodes
         elif by == By.CLASS:
-            result = []
+            nodes = []
             for node in re.findall(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class="%s"(?=>)' % value, xml):
-                prop = node.split("\" ")
-                values = [p.split("=\"")[1] for p in prop[:-1]]
-                index = int(values[0])
-                checkable = False if values[6] == "false" else True
-                checked = False if values[7] == "false" else True
-                clickable = False if values[8] == "false" else True
-                enable = False if values[9] == "false" else True
-                focusable = False if values[10] == "false" else True
-                focused = False if values[11] == "false" else True
-                scrollable = False if values[12] == "false" else True
-                long_clickable = False if values[13] == "false" else True
-                password = False if values[14] == "false" else True
-                selected = False if values[15] == "false" else True
-                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
-                result.append(Node(self, index, values[1], values[2], values[3], values[4], values[5], 
-                              checkable, checked, clickable, enable, focusable, focused, scrollable, 
-                              long_clickable, password, selected, bounds))
-            return result
+                nodes.append(self._create_node(node))
+            return nodes
         elif by == By.PACKAGE:
-            result = []
+            nodes = []
             for node in re.findall(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class=".*" package="%s"(?=>)' % value, xml):
-                prop = node.split("\" ")
-                values = [p.split("=\"")[1] for p in prop[:-1]]
-                index = int(values[0])
-                checkable = False if values[6] == "false" else True
-                checked = False if values[7] == "false" else True
-                clickable = False if values[8] == "false" else True
-                enable = False if values[9] == "false" else True
-                focusable = False if values[10] == "false" else True
-                focused = False if values[11] == "false" else True
-                scrollable = False if values[12] == "false" else True
-                long_clickable = False if values[13] == "false" else True
-                password = False if values[14] == "false" else True
-                selected = False if values[15] == "false" else True
-                bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
-                result.append(Node(self, index, values[1], values[2], values[3], values[4], values[5], 
-                              checkable, checked, clickable, enable, focusable, focused, scrollable, 
-                              long_clickable, password, selected, bounds))
-            return result
+                nodes.append(self._create_node(node))
+            return nodes
         return []
+    
+    def _create_node(self, node: str) -> Node:
+        prop = node.split("\" ")
+        values = [p.split("=\"")[1] for p in prop[:-1]]
+        index = int(values[0])
+        checkable = False if values[6] == "false" else True
+        checked = False if values[7] == "false" else True
+        clickable = False if values[8] == "false" else True
+        enable = False if values[9] == "false" else True
+        focusable = False if values[10] == "false" else True
+        focused = False if values[11] == "false" else True
+        scrollable = False if values[12] == "false" else True
+        long_clickable = False if values[13] == "false" else True
+        password = False if values[14] == "false" else True
+        selected = False if values[15] == "false" else True
+        bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
+        return Node(self, index, values[1], values[2], values[3], values[4], values[5], 
+                    checkable, checked, clickable, enable, focusable, focused, scrollable, 
+                    long_clickable, password, selected, bounds)
     
     def wait(self, second: float):
         time.sleep(second)
