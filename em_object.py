@@ -328,13 +328,13 @@ class ObjectEmulator:
             if node := re.search(r'(?<=<node )index="\d+" text="%s".*?(?=/>|>)' % value, xml):
                 return self._create_node(node.group())
         elif by == By.RESOURCE_ID:
-            if node := re.search(r'(?<=<node )index="\d+" text=".+" resource-id="%s"(?=>)' % value, xml):
+            if node := re.search(r'(?<=<node )index="\d+" text=".+" resource-id="%s".*?(?=>)' % value, xml):
                 return self._create_node(node.group())
         elif by == By.CLASS:
-            if node := re.search(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class="%s"(?=>)' % value, xml):
+            if node := re.search(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class="%s".*?(?=>)' % value, xml):
                 return self._create_node(node.group())
         elif by == By.PACKAGE:
-            if node := re.search(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class=".*" package="%s"(?=>)' % value, xml):
+            if node := re.search(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class=".*" package="%s".*?(?=>)' % value, xml):
                 return self._create_node(node.group())
         
     def get_nodes(self, by: int, value: str) -> list[Node]:
@@ -348,17 +348,17 @@ class ObjectEmulator:
             return nodes
         elif by == By.RESOURCE_ID:
             nodes = []
-            for node in re.findall(r'(?<=<node )index="\d+" text=".+" resource-id="%s"(?=>)' % value, xml):
+            for node in re.findall(r'(?<=<node )index="\d+" text=".+" resource-id="%s".*?(?=>)' % value, xml):
                 nodes.append(self._create_node(node))
             return nodes
         elif by == By.CLASS:
             nodes = []
-            for node in re.findall(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class="%s"(?=>)' % value, xml):
+            for node in re.findall(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class="%s".*?(?=>)' % value, xml):
                 nodes.append(self._create_node(node))
             return nodes
         elif by == By.PACKAGE:
             nodes = []
-            for node in re.findall(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class=".*" package="%s"(?=>)' % value, xml):
+            for node in re.findall(r'(?<=<node )index="\d+" text=".*" resource-id=".*" class=".*" package="%s".*?(?=>)' % value, xml):
                 nodes.append(self._create_node(node))
             return nodes
         return []
