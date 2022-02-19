@@ -366,21 +366,26 @@ class ObjectEmulator:
     def _create_node(self, node: str) -> Node:
         prop = node.split("\" ")
         values = [p.split("=\"")[1] for p in prop[:-1]]
-        index = int(values[0])
-        checkable = False if values[6] == "false" else True
-        checked = False if values[7] == "false" else True
-        clickable = False if values[8] == "false" else True
-        enable = False if values[9] == "false" else True
-        focusable = False if values[10] == "false" else True
-        focused = False if values[11] == "false" else True
-        scrollable = False if values[12] == "false" else True
-        long_clickable = False if values[13] == "false" else True
-        password = False if values[14] == "false" else True
-        selected = False if values[15] == "false" else True
-        bounds = [(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
-        return Node(self, index, values[1], values[2], values[3], values[4], values[5], 
-                    checkable, checked, clickable, enable, focusable, focused, scrollable, 
-                    long_clickable, password, selected, bounds)
+        return Node(
+            parent=self,
+            index=int(values[0]),
+            text=values[1],
+            resource_id=values[2],
+            _class=values[3],
+            package=values[4],
+            content_desc=values[5],
+            checkable=False if values[6] == "false" else True,
+            checked=False if values[7] == "false" else True,
+            clickable=False if values[8] == "false" else True,
+            enabled=False if values[9] == "false" else True,
+            focussable=False if values[10] == "false" else True,
+            focused=False if values[11] == "false" else True,
+            scrollable=False if values[12] == "false" else True,
+            long_clickable=False if values[13] == "false" else True,
+            password=False if values[14] == "false" else True,
+            selected=False if values[15] == "false" else True,
+            bounds=[(int(x), int(y)) for x , y in [t.split(",") for t in values[16][1:-1].split("][")]]
+        )
     
     def wait(self, second: float):
         time.sleep(second)
