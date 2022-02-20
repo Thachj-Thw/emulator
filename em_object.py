@@ -287,8 +287,8 @@ class ObjectEmulator:
     def tap_to_imgs(self, img_path: str, threshold: float = 0.8):
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
-            base = base64.b64decode(self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'"))
-            if pos := get_pos_img(path, base, multi=True, threshold=threshold):
+            out = self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")
+            if pos := get_pos_img(path, base64.b64decode(out), multi=True, threshold=threshold):
                 for p in pos:
                     self.tap(p)
             else:
@@ -301,11 +301,8 @@ class ObjectEmulator:
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             timer = time.perf_counter()
-            while not existed(
-                path, 
-                base64.b64decode(self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")), 
-                threshold
-            ):
+            out = self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")
+            while not existed(path, base64.b64decode(out), threshold):
                 if timeout != 0 and time.perf_counter() - timer > timeout:
                     self.error = "Timeout"
                     break
