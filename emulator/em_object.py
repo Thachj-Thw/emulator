@@ -1,8 +1,7 @@
 from __future__ import annotations
-from importlib import resources
 from typing import Union, Optional
 import subprocess
-from .option import EmulatorOption
+from .option import EmulatorOptions
 from .args import subprocess_args
 from .opencv import get_pos_img, existed
 from .node import Node, By
@@ -68,7 +67,7 @@ class ObjectEmulator:
             return True
         return False
     
-    def wait_to_started(self, timeout=60):
+    def wait_to_started(self, timeout: int = 60):
         timer = time.perf_counter()
         while time.perf_counter() - timer < timeout and not self.adb_connected():
             time.sleep(1)
@@ -78,7 +77,7 @@ class ObjectEmulator:
         cmd = f'{self.controller} isrunning {self.this}'
         return self._run_cmd(cmd) == "running"
 
-    def restart(self, wait=False):
+    def restart(self, wait: bool = True):
         if self.is_running():
             cmd = f'{self.controller} reboot {self.this}'
             self._run_cmd(cmd)
@@ -232,7 +231,7 @@ class ObjectEmulator:
         cmd = f'{self.controller} quit {self.this}'
         self._run_cmd(cmd)
     
-    def property_setting(self, options: EmulatorOption):
+    def property_setting(self, options: EmulatorOptions):
         opts = " ".join([f"{key} {options.options[key]}" for key in options.options.keys()])
         if opts:
             cmd = f'{self.controller} modify {self.this} {opts}'

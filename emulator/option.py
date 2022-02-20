@@ -1,4 +1,4 @@
-class EmulatorOption:
+class EmulatorOptions:
     """
     options:
     - resolution: width, height, DPI
