@@ -39,7 +39,7 @@ em_copy = ld.emulators[0]
 ld.copy(em_copy)
 ```
 
-sắp xếp các player
+sắp xếp các cửa sổ player
 ```python
 for em in ld.emulators:
     em.start(wait=False)
