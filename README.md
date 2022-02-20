@@ -28,7 +28,7 @@ em.start()
 ```
 
 xóa player
-```pthon
+```python
 em_remove = ld.emulators[0]
 ld.remove(em_remove)
 ```
