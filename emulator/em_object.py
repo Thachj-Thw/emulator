@@ -296,7 +296,7 @@ class ObjectEmulator:
             self.error = f'The path "{img_path}" invalid!'
         return self
 
-    def wait_img_existed(self, img_path: str, timeout: int = 0, threshold: float = 0.8):
+    def wait_img_existed(self, img_path: str, timeout: float = 0, threshold: float = 0.8):
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             timer = time.perf_counter()

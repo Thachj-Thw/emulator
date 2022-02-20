@@ -7,7 +7,7 @@ git clone https://github.com/Thachj-Thw/emulator.git
 ```
 
 ## Usage
-just type `import emulator` in the module you want to use.
+Sao chép package emulator và ghi vào project của bạn. Sau đó chỉ cần `import emulator` và sử dụng
 
 ### Example started
 LDPlayer
@@ -124,29 +124,118 @@ em.property_setting(options)
 em.start()
 ```
 ### down_cpu
+
 ### backup
 Tạo file backup player
 ### restore
+
 ### action
+
 ### scan
+
 ### pull
+Đưa file `remote` từ player về PC thành `local`
+```python
+em.pull(remote="sdcard/remote.txt", local="C:/local.txt")
+```
 ### push
+Đưa file `local` từ PC lên player thành `remote`
+```python
+em.push(local="C:/local.txt", remote="sdcard/remote.txt")
+```
 ### capture
+Chụp ảnh màn hình và lưu thành `as_file`
+```python
+em.capture(as_file="path/to/save_as.png")
+```
 ### adb_connected
+Trả về `True` nếu ADB đã kết nối với player ngược lại `False`
 ### tap
+Nhấn vào vị trí `pos`
+```python
+em.tap(pos=(200, 200))
+```
 ### swipe
+Vuốt từ vị trí `_from` tới vị trí `to` trong khoảng thời gian `duration` millisecond.
+```python
+em.swipe(_from=(100, 200), to=(500, 200), duration=100)
+```
 ### send_text
+Gửi đoạn văn bản `text`.
+```python
+em.send_text(text)
+```
 ### send_event
+Gửi event tới player
+```python
+import emulator
+from emulator import keys
+
+
+ld = emulator.LDPlayer("path/to/ldplayer dir")
+em = ld.emulators[0].start()
+em.wait(5).send_event(keys.KEYCODE_CALL)
+```
 ### home
+Nhấn vào nút home
 ### back
+Nhấn vào nút back
 ### app_switcher
+Nhấn vào nút app switcher
 ### tap_to_img
+Nhấp vào hình ảnh khới với hình ảnh được cho. `threshold` là độ chính xác khi tìm kiếm, nằm trong khoảng từ 0 tới 1
+```python
+em.tap_to_img("path/to/img", threshold=0.8)
+```
 ### tap_to_imgs
+Nhấn vào tất cả hình ảnh khớp với hình ảnh được cho. `threshold` là độ chính xác khi tìm kiếm, nằm trong khoảng từ 0 tới 1.
+```python
+em.tap_to_imgs("path/to/img", threshold=0.8)
+```
+
 ### wait_img_existed
+Chờ cho tới khi hình ảnh xuất hiện trên màn hình, chờ tối đa `timeout` giây, `threshold` là độ chính xác khi tìm kiếm nằm trong khoảng 0 tới 1.
+```python
+em.wait_img_existed("path/to/img", timeout=0, threshold=0.8)
+```
+
 ### dump_xml
+Lưu window_dump thành file
+```python
+em.dump_xml("path/local.xml")
+```
+
 ### get_node
+Trả về `Node` đầu tiên trong window_dump có giá trị khớp với giá trị đã cho, nếu tìm được trả về `None`
+```python
+import emulator
+from emulator.node import By
+
+
+ld = emulator.LDPlayer("path/to/ldplayer")
+em = ld.emulator[0].start().wait(10)
+em.get_node(By.TEXT, "node text")
+```
+
 ### get_nodes
+Trả về một `list` là tất cả các node trong window_dump có giá trị khới với gía trị đã cho
+```python
+import emulator
+from emulator.node import By
+
+
+ld = emulator.LDPlayer("path/to/ldplayer")
+em = ld.emulators[0].start().wait(10)
+nodes = em.get_nodes(By.TEXT, "text node")
+```
 ### wait
+Dừng chương trình trong second giây
+```python
+em.wait(second)
+```
 ### hide
+Ẩn player
 ### show
+Hiển thị player
 ### quit
+Tắt player
