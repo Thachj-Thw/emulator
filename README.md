@@ -21,6 +21,31 @@ có hai cách để lấy player trong LDPlayer là dùng `index` `ld.emulators[
 hoặc dùng `name` `ld.emulator["LDPlayer"].start()`.
 'tôi khuyên bạn nên sử dụng index, vì name có thể trùng lặp dẫn tới điều khiển sai player'
 
+tạo player mới
+```python
+em = ld.new("New-LDPlayer")
+em.start()
+```
+
+xóa player
+```pthon
+em_remove = ld.emulators[0]
+ld.remove(em_remove)
+```
+
+sao chép player
+```python
+em_copy = ld.emulators[0]
+ld.copy(em_copy)
+```
+
+sắp xếp các player
+```python
+for em in ld.emulators:
+    em.start(wait=False)
+ld.sort_window()
+```
+
 tạo các hành động
 ```python
 em = ld.emulator[0]
