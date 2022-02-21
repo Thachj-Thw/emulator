@@ -222,9 +222,12 @@ class ObjectEmulator:
     
     def capture(self, as_file):
         path = os.path.normpath(as_file)
-        cmd = "shell screencap -p | base64 | sed 's/\\r\\r$//'"
-        with open(path, mode="wb") as file:
-            file.write(base64.b64decode(self._run_adb(cmd)))
+        out = self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")
+        if out != "adb is not connected":
+            with open(path, mode="wb") as file:
+                file.write(base64.b64decode(out))
+        else:
+            self.error = out
         return self
     
     def quit(self) -> None:
