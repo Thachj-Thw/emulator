@@ -317,6 +317,10 @@ class ObjectEmulator:
                 if timeout != 0 and time.perf_counter() - timer > timeout:
                     self.error = "Timeout"
                     break
+                out = self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")
+                if out == "adb is not connected":
+                    self.error = out
+                    break
         else:
             self.error = f'The path "{img_path}" invalid'
         return self
