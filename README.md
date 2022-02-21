@@ -240,7 +240,7 @@ em.tap_to_imgs(img_path="path/to/img", threshold=0.8)
 ```
 
 ### wait_img_existed
-Chờ cho tới khi hình ảnh xuất hiện trên màn hình, chờ tối đa `timeout` giây, `threshold` là độ chính xác khi tìm kiếm nằm trong khoảng 0 tới 1.
+Chờ cho tới khi hình ảnh xuất hiện trên màn hình, chờ tối đa `timeout` giây, nếu `timeout=0` sẽ chờ vô hạn cho tới khi có hình ảnh. `threshold` là độ chính xác khi tìm kiếm nằm trong khoảng 0 tới 1.
 ```python
 em.wait_img_existed(img_path="path/to/img", timeout=0, threshold=0.8)
 ```
