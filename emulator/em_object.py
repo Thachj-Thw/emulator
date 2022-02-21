@@ -274,8 +274,11 @@ class ObjectEmulator:
     def tap_to_img(self, img_path: str, threshold: float = 0.8):
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
-            base = base64.b64decode(self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'"))
-            if pos := get_pos_img(path, base, threshold=threshold):
+            out = self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")
+            if out == "adb is not connected":
+                self.error = out
+                return self
+            if pos := get_pos_img(path, base64.b64decode(out), threshold=threshold):
                 self.tap(pos[0])
             else:
                 self.error = "image not in screen"
@@ -287,6 +290,9 @@ class ObjectEmulator:
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             out = self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")
+            if out == "adb is not connected":
+                self.error = out
+                return self
             if pos := get_pos_img(path, base64.b64decode(out), multi=True, threshold=threshold):
                 for p in pos:
                     self.tap(p)
@@ -301,6 +307,9 @@ class ObjectEmulator:
         if os.path.isfile(path):
             timer = time.perf_counter()
             out = self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")
+            if out == "adb is not connected":
+                self.error = out
+                return self
             while not existed(path, base64.b64decode(out), threshold):
                 if timeout != 0 and time.perf_counter() - timer > timeout:
                     self.error = "Timeout"
