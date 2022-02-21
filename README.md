@@ -2,10 +2,13 @@
 this package hỗ trợ điều khiển các phần mềm giả lập như LDPlayer một cách dễ dàng
 
 ## Installation
+Sử dụng Git
 ```bash
 git clone https://github.com/Thachj-Thw/emulator.git
 ```
+hoặc download ZIP.
 
+https://github.com/Thachj-Thw/emulator/archive/refs/heads/main.zip
 ## Usage
 Sao chép package emulator và ghi vào project của bạn. Sau đó chỉ cần `import emulator` và sử dụng
 
