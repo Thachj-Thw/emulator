@@ -17,8 +17,8 @@ LDPlayer
 ```python
 import emulator
 
-path_to_ldplayer_dir = "C:/LDPlayer/LDPlayer4.0"
-ld = emulator.LDPlayer(path_to_ldplayer_dir)
+ldplayer_directory = "C:/LDPlayer/LDPlayer4.0"
+ld = emulator.LDPlayer(ldplayer_directory)
 ```
 có hai cách để lấy player trong LDPlayer là dùng `index` `ld.emulators[0].start()`
 hoặc dùng `name` `ld.emulator["LDPlayer"].start()`. Tôi khuyên bạn nên sử dụng index, vì name có thể trùng lặp dẫn tới điều khiển sai player.
