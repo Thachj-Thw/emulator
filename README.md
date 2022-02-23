@@ -229,14 +229,14 @@ Nhấn vào nút app switcher
 em.app_switcher()
 ```
 ### tap_to_img
-Nhấp vào hình ảnh khới với hình ảnh được cho. `threshold` là độ chính xác khi tìm kiếm, nằm trong khoảng từ 0 tới 1
+Nhấp vào hình ảnh khới với hình ảnh được cho. Nếu `wait=True` hàm sẽ chờ cho tới khi hình ảnh xuất hiện tối đa `timeout` giây, với `timeout=0` hàm sẽ chờ vô tận, `threshold` là độ chính xác khi tìm kiếm, nằm trong khoảng từ 0 tới 1
 ```python
-em.tap_to_img(img_path="path/to/img", threshold=0.8)
+em.tap_to_img(img_path="path/to/img", wait=True, timeout=0, threshold=0.8)
 ```
 ### tap_to_imgs
-Nhấn vào tất cả hình ảnh khớp với hình ảnh được cho. `threshold` là độ chính xác khi tìm kiếm, nằm trong khoảng từ 0 tới 1.
+Nhấn vào tất cả hình ảnh khớp với hình ảnh được cho. Nếu `wait=True` hàm sẽ chờ cho tới khi hình ảnh xuất hiện tối đa `timeout` giây, với `timeout=0` hàm sẽ chờ vô tận, `threshold` là độ chính xác khi tìm kiếm, nằm trong khoảng từ 0 tới 1.
 ```python
-em.tap_to_imgs(img_path="path/to/img", threshold=0.8)
+em.tap_to_imgs(img_path="path/to/img", wait=True, timeout=0, threshold=0.8)
 ```
 
 ### wait_img_existed

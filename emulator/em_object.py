@@ -274,14 +274,16 @@ class ObjectEmulator:
     def app_switcher(self):
         return self.send_event(187)
     
-    def tap_to_img(self, img_path: str, threshold: float = 0.8):
+    def tap_to_img(self, img_path: str, wait: bool = True, timeout: int = 0, threshold: float = 0.8):
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
-            out = self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")
-            if out == "adb is not connected":
-                self.error = out
+            if wait:
+                screen = self._wait_img_and_get_screencap(path, timeout, threshold)
+            else:
+                screen = self._get_screencap_b64decode()
+            if not screen:
                 return self
-            if pos := get_pos_img(path, base64.b64decode(out), threshold=threshold):
+            if pos := get_pos_img(path, screen, threshold=threshold):
                 self.tap(pos[0])
             else:
                 self.error = "image not in screen"
@@ -289,14 +291,16 @@ class ObjectEmulator:
             self.error = f'The path "{img_path}" invalid!'
         return self
     
-    def tap_to_imgs(self, img_path: str, threshold: float = 0.8):
+    def tap_to_imgs(self, img_path: str, wait: bool = True, timeout: int = 0, threshold: float = 0.8):
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
-            out = self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")
-            if out == "adb is not connected":
-                self.error = out
+            if wait:
+                screen = self._wait_img_and_get_screencap(path, timeout, threshold)
+            else:
+                screen = self._get_screencap_b64decode()
+            if not screen:
                 return self
-            if pos := get_pos_img(path, base64.b64decode(out), multi=True, threshold=threshold):
+            if pos := get_pos_img(path, screen, multi=True, threshold=threshold):
                 for p in pos:
                     self.tap(p)
             else:
@@ -308,22 +312,29 @@ class ObjectEmulator:
     def wait_img_existed(self, img_path: str, timeout: float = 0, threshold: float = 0.8):
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
-            timer = time.perf_counter()
-            out = self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")
-            if out == "adb is not connected":
-                self.error = out
-                return self
-            while not existed(path, base64.b64decode(out), threshold):
-                if timeout != 0 and time.perf_counter() - timer > timeout:
-                    self.error = "Timeout"
-                    break
-                out = self._run_adb("shell screencap -p | base64 | sed 's/\\r\\r$//'")
-                if out == "adb is not connected":
-                    self.error = out
-                    break
+            self._wait_img_and_get_screencap(path, timeout, threshold)
         else:
             self.error = f'The path "{img_path}" invalid'
         return self
+    
+    def _get_screencap_b64decode(self) -> Optional[bytes]:
+        if self.adb_connected:
+            out = self._run_cmd(f'{self.controller} adb {self.this} --command '
+                                '"shell screencap -p | base64 | sed \'s/\\r\\r$//\'"')
+            return base64.b64decode(out)
+        self.error = "adb is not connected"
+    
+    def _wait_img_and_get_screencap(self, img_path: str, timeout: int, threshold: int):
+        if screen := self._get_screencap_b64decode():
+            timer = time.perf_counter()
+            while not existed(img_path, screen, threshold):
+                if timeout != 0 and time.perf_counter() - timer > timeout:
+                    self.error = "Timeout"
+                    return
+                screen = self._get_screencap_b64decode()
+                if not screen:
+                    return
+            return screen
     
     def dump_xml(self, as_file: str):
         path = os.path.normpath(as_file)
