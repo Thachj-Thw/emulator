@@ -274,7 +274,7 @@ class ObjectEmulator:
     def app_switcher(self):
         return self.send_event(187)
     
-    def tap_to_img(self, img_path: str, wait: bool = True, timeout: int = 0, threshold: float = 0.8):
+    def tap_to_img(self, img_path: str, wait: bool = True, timeout: float = 0, threshold: float = 0.8):
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             if wait:
@@ -291,7 +291,7 @@ class ObjectEmulator:
             self.error = f'The path "{img_path}" invalid!'
         return self
     
-    def tap_to_imgs(self, img_path: str, wait: bool = True, timeout: int = 0, threshold: float = 0.8):
+    def tap_to_imgs(self, img_path: str, wait: bool = True, timeout: float = 0, threshold: float = 0.8):
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             if wait:
@@ -324,7 +324,7 @@ class ObjectEmulator:
             return base64.b64decode(out)
         self.error = "adb is not connected"
     
-    def _wait_img_and_get_screencap(self, img_path: str, timeout: int, threshold: int):
+    def _wait_img_and_get_screencap(self, img_path: str, timeout: float, threshold: float):
         if screen := self._get_screencap_b64decode():
             timer = time.perf_counter()
             while not existed(img_path, screen, threshold):
