@@ -67,9 +67,9 @@ class ObjectEmulator:
             return True
         return False
     
-    def wait_to_started(self, timeout: int = 60):
+    def wait_to_started(self, timeout: float = 60):
         timer = time.perf_counter()
-        while time.perf_counter() - timer < timeout and not self.adb_connected():
+        while (timeout == 0 or time.perf_counter() - timer < timeout) and not self.adb_connected():
             time.sleep(1)
         return self
     
@@ -86,8 +86,9 @@ class ObjectEmulator:
             else:
                 time.sleep(3)
             self._update()
-            return self
-        self.error = "emulator is not running"
+            self.error = ""
+        else:
+            self.error = "emulator is not running"
         return self
     
     def rename(self, new_name: str):
@@ -208,6 +209,8 @@ class ObjectEmulator:
         out = self._run_adb(cmd)
         if "KB/s" not in out:
             self.error = out
+        else:
+            self.error = ""
         return self
     
     def push(self, local: str, remote: str):
@@ -218,6 +221,8 @@ class ObjectEmulator:
         if "KB/s" not in out:
             self.error = out
             print(self.error)
+        else:
+            self.error = ""
         return self
     
     def capture(self, as_file):
@@ -226,6 +231,7 @@ class ObjectEmulator:
         if out != "adb is not connected":
             with open(path, mode="wb") as file:
                 file.write(base64.b64decode(out))
+            self.error = ""
         else:
             self.error = out
         return self
@@ -275,6 +281,7 @@ class ObjectEmulator:
         return self.send_event(187)
     
     def tap_to_img(self, img_path: str, timeout: float = -1, threshold: float = 0.8):
+        self.error = ""
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             if timeout == 0:
@@ -292,6 +299,7 @@ class ObjectEmulator:
         return self
     
     def tap_to_imgs(self, img_path: str, timeout: float = -1, threshold: float = 0.8):
+        self.error = ""
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             if timeout == 0:
@@ -310,6 +318,7 @@ class ObjectEmulator:
         return self
 
     def wait_img_existed(self, img_path: str, timeout: float = 0, threshold: float = 0.8):
+        self.error = ""
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             self._wait_img_and_get_screencap(path, timeout, threshold)
