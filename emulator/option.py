@@ -25,10 +25,10 @@ class EmulatorOptions:
     M4096 = 4096
     M6144 = 6144
     MEMORY_OPTIONS = [M256, M521, M768, M1024, M1536, M2048, M3072, M4096, M6144]
-    
+
     def __init__(self) -> None:
         self.options = {}
-    
+
     def set_resolution(self, width: int, height: int, dpi: int):
         if width < 64:
             width = 64
@@ -43,42 +43,42 @@ class EmulatorOptions:
         elif dpi > 640:
             dpi = 640
         self.options["--resolution"] = f"{width},{height},{dpi}"
-    
+
     def set_cpu(self, core: int) -> None:
         if core < 1:
             core = 1
         elif core > 4:
             core = 4
         self.options["--cpu"] = int(core)
-    
+
     def set_memory(self, byte: int) -> None:
         if byte not in self.MEMORY_OPTIONS:
             raise Exception("byte must be one in " + str(self.MEMORY_OPTIONS))
         self.options["--memory"] = byte
-    
+
     def set_manufacturer(self, manufacturer: str) -> None:
         self.options["--manufacturer"] = manufacturer
-    
+
     def set_model(self, model: str) -> None:
         self.options["--model"] = model
-    
+
     def set_number(self, phone_number: str) -> None:
         self.options["--pnumber"] = phone_number
-    
+
     def set_imei(self, imei: str) -> None:
         self.options["--imei"] = imei
-    
+
     def set_imsi(self, imsi: str) -> None:
         self.options["--imsi"] = imsi
 
     def set_android_id(self, id: str) -> None:
         self.options["--androidid"] = id
-    
+
     def set_mac(self, mac: str) -> None:
         self.options["--mac"] = mac
-    
+
     def set_auto_rotate(self, b: bool = True) -> None:
         self.options["--autorotate"] = int(b)
-    
+
     def set_lock_window(self, b: bool = True) -> None:
         self.options["--lockwindow"] = int(b)

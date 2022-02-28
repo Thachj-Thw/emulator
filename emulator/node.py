@@ -1,16 +1,16 @@
 class Node:
     def __init__(
-        self, 
+        self,
         parent,
-        index: int = 0, 
-        text: str = "", 
-        resource_id: str = "", 
-        _class: str = "", 
-        package: str = "", 
-        content_desc: str = "", 
-        checkable: bool = False, 
-        checked: bool = False, 
-        clickable: bool = False, 
+        index: int = 0,
+        text: str = "",
+        resource_id: str = "",
+        _class: str = "",
+        package: str = "",
+        content_desc: str = "",
+        checkable: bool = False,
+        checked: bool = False,
+        clickable: bool = False,
         enabled: bool = True,
         focussable: bool = False,
         focused: bool = False,
@@ -40,11 +40,11 @@ class Node:
         self.bounds = bounds
         self.width = self.bounds[1][0] - self.bounds[0][0]
         self.height = self.bounds[1][1] - self.bounds[0][1]
-    
+
     def tap(self):
         x, y = self.bounds[0]
         self.parent.tap((x + self.width // 2, y + self.height // 2))
-    
+
     def __str__(self):
         return f'<node index="{self.index}" text="{self.text}" resource-id="{self.resource_id}"'\
                f'class="{self.class_}" package="{self.package}" ...>'

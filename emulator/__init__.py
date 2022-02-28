@@ -3,7 +3,7 @@ import os
 import subprocess
 from .args import subprocess_args
 from .em_object import ObjectEmulator
-from typing import Iterator
+from typing import Iterator, Optional
 
 
 class LDPlayer:
@@ -31,7 +31,7 @@ class LDPlayer:
         if not os.path.isfile(self.adb):
             raise Exception("ADB not found!")
         os.system(f'"{self.adb}" start-server')
-    
+
     def new(self, name: str = None) -> ObjectEmulator:
         exists = self.list_index()
         i = 0
@@ -46,7 +46,7 @@ class LDPlayer:
         em = ObjectEmulator(self, i, name)
         self.emulators.update({i: em, name: em})
         return em
-    
+
     def copy(self, emulator: ObjectEmulator, as_name: str):
         cmd = f'{self.controller} copy --name "{as_name}" --from {emulator.index}'
         self.error = self._run_cmd(cmd)
@@ -59,7 +59,7 @@ class LDPlayer:
         em = ObjectEmulator(self, i, as_name)
         self.emulators.update({i: em, as_name: em})
         return em
-    
+
     def remove(self, e: ObjectEmulator) -> bool:
         cmd = f'{self.controller} remove {e.this}'
         self.error = self._run_cmd(cmd)
@@ -70,17 +70,17 @@ class LDPlayer:
             obj = ObjectEmulator(self, info["index"], info["name"])
             self.emulators.update({info["index"]: obj, info["name"]: obj})
         return True
-    
+
     def list_name(self) -> list[str]:
         p = subprocess.Popen(f'{self.controller} list', **subprocess_args())
         out, _ = p.communicate()
         return out.decode().split("\r\n")[:-1]
-    
+
     def list_index(self) -> list[int]:
         p = subprocess.Popen(f'{self.controller} list2', **subprocess_args())
         out, _ = p.communicate()
         return [args.split(",")[0] for args in out.decode().split("\r\n")[:-1]]
-    
+
     def list_index_name(self) -> list[dict]:
         p = subprocess.Popen(f'{self.controller} list2', **subprocess_args())
         out, _ = p.communicate()
@@ -89,41 +89,49 @@ class LDPlayer:
             args = string.split(",")
             lst.append({"index": int(args[0]), "name": args[1]})
         return lst
-    
+
     def list_running(self) -> list[str]:
         p = subprocess.Popen(f'{self.controller} runninglist', **subprocess_args())
         out, _ = p.communicate()
         return out.decode().split("\r\n")[:-1]
-        
+
     def sort_window(self) -> bool:
         cmd = f'{self.controller} sortWnd'
         self.error = self._run_cmd(cmd)
         return False if self.error else True
-    
-    def setting(self, fps: int = 30, audio: bool = False, fastplay: bool = False, cleanmode: bool = False) -> bool:
-        if fps > 60:
-            fps = 60
-        elif fps < 1:
-            fps = 1
-        cmd = f'{self.controller} globalsetting --fps {int(fps)} --audio {int(audio)} --fastplay {int(fastplay)} --cleanmode {int(cleanmode)}'
+
+    def setting(self, fps: int = None, audio: bool = None, fastplay: bool = None, cleanmode: bool = None) -> bool:
+        cmd = f'{self.controller} globalsetting'
+        if fps is not None:
+            if fps > 60:
+                fps = 60
+            elif fps < 1:
+                fps = 1
+            cmd += ' --fps ' + str(fps)
+        if audio is not None:
+            cmd += ' --audio ' + str(int(audio))
+        if fastplay is not None:
+            cmd += ' --fastplay ' + str(int(fastplay))
+        if cleanmode is not None:
+            cmd += ' --cleanmode ' + str(int(cleanmode))
         self.error = self._run_cmd(cmd)
         return False if self.error else True
-    
+
     def quit(self) -> bool:
         cmd = f'{self.controller} quitall'
-        self._run_cmd(cmd)
-        os.system(f'"{self.adb}" kill-server')
-    
-    def _run_cmd(self, cmd: str) -> str:
+        self.error = self._run_cmd(cmd)
+        return False if self.error else True
+
+    def _run_cmd(self, cmd: str, decode: Optional[str] = 'utf-8') -> str:
         p = subprocess.Popen(cmd, **subprocess_args())
         o, e = p.communicate()
         if p.wait():
-            return e.decode()
-        return o.decode()
-    
+            return e.decode(decode) if decode is not None else e
+        return o.decode(decode) if decode is not None else o
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, _exc_type, _exc_value, traceback):
         self.quit()
         if traceback:
@@ -131,15 +139,15 @@ class LDPlayer:
 
 
 class EmulatorContainer(dict):
-    
+
     def __getitem__(self, __k) -> ObjectEmulator:
         return super().__getitem__(__k)
-    
+
     def __iter__(self) -> Iterator[ObjectEmulator]:
         return iter([self[k] for k in self.keys() if type(k) is int])
-    
+
     def __len__(self) -> int:
         return len([x for x in self.keys() if type(x) is int])
-    
+
     def __str__(self) -> str:
         return "Emulators(" + ", ".join([self[k].__str__() for k in self.keys() if type(k) is int]) + ")"

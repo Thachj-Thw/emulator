@@ -5,8 +5,8 @@ import numpy as np
 def get_pos_img(
     obj: str,
     _in: bytes,
-    center: bool = True, 
-    multi: bool = False, 
+    center: bool = True,
+    multi: bool = False,
     threshold: float = 0.8,
     eps: float = 0.05,
     show: bool = False

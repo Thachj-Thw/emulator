@@ -1,3 +1,23 @@
+Metadata-Version: 2.1
+Name: emulator
+Version: 0.0.1
+Summary: package help control emulator
+Home-page: https://github.com/Thachj-Thw/emulator
+Author: Thw
+Author-email: 
+License: UNKNOWN
+Project-URL: Source, https://github.com/Thachj-Thw/emulator
+Keywords: emulator,android,android emulator
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Natural Language :: Vietnamese
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
 # emulator
 
 this package hỗ trợ điều khiển các phần mềm giả lập như LDPlayer một cách dễ dàng
@@ -422,3 +442,5 @@ Tắt player
 ```python
 em.quit()
 ```
+
+
