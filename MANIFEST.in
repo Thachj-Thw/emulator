@@ -1,0 +1,4 @@
+graft emulator/sed
+graft emulator/dump
+graft emulator/adb
+graft emulator/base64
