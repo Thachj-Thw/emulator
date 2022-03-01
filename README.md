@@ -1,6 +1,6 @@
 # emulator
 
-this package hỗ trợ điều khiển các phần mềm giả lập (Hiện tại chỉ hỗ trợ phần mềm LDPlayer)
+package này hỗ trợ điều khiển các phần mềm giả lập (Hiện tại chỉ hỗ trợ phần mềm LDPlayer)
 
 ## Installation
 
@@ -325,7 +325,7 @@ em.app_switcher()
 
 ### tap_to_img
 
-Nhấp vào hình ảnh khới với hình ảnh được cho. `timeout` là thời gian chờ hình xuất hiện nếu nhỏ hơn 0 sẽ chờ vô hạn , `threshold` là độ chính xác khi tìm kiếm, nằm trong khoảng từ 0 tới 1
+Nhấp vào hình ảnh khớp với hình ảnh được cho. `timeout` là thời gian chờ hình xuất hiện nếu nhỏ hơn 0 sẽ chờ vô hạn , `threshold` là độ chính xác khi tìm kiếm, nằm trong khoảng từ 0 tới 1
 
 ```python
 em.tap_to_img(img_path="path/to/img", timeout=-1, threshold=0.8)
