@@ -20,23 +20,17 @@ License-File: LICENSE.txt
 
 # emulator
 
-this package hỗ trợ điều khiển các phần mềm giả lập như LDPlayer một cách dễ dàng
+this package hỗ trợ điều khiển các phần mềm giả lập (Hiện tại chỉ hỗ trợ phần mềm LDPlayer)
 
 ## Installation
 
 Sử dụng Git
 
 ```bash
-git clone https://github.com/Thachj-Thw/emulator.git
+pip install emulator
 ```
 
-hoặc download ZIP.
-
-<https://github.com/Thachj-Thw/emulator/archive/refs/heads/main.zip>
-
 ## Usage
-
-Sao chép package emulator và ghi vào project của bạn. Sau đó chỉ cần `import emulator` và sử dụng
 
 ### Example started
 

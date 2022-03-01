@@ -6,6 +6,9 @@ from .em_object import ObjectEmulator
 from typing import Iterator, Optional
 
 
+__version__ = "0.0.1"
+
+
 class LDPlayer:
     """
     Main cotroll all player of LDPlayer
@@ -79,7 +82,7 @@ class LDPlayer:
     def list_index(self) -> list[int]:
         p = subprocess.Popen(f'{self.controller} list2', **subprocess_args())
         out, _ = p.communicate()
-        return [args.split(",")[0] for args in out.decode().split("\r\n")[:-1]]
+        return [int(args.split(",")[0]) for args in out.decode().split("\r\n")[:-1]]
 
     def list_index_name(self) -> list[dict]:
         p = subprocess.Popen(f'{self.controller} list2', **subprocess_args())
