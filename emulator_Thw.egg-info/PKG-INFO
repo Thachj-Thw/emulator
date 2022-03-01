@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: emulator-Thw
-Version: 0.0.1
+Version: 0.0.2
 Summary: package help control emulator
 Home-page: https://github.com/Thachj-Thw/emulator
 Author: Thw
@@ -24,10 +24,8 @@ this package hỗ trợ điều khiển các phần mềm giả lập (Hiện t�
 
 ## Installation
 
-Sử dụng Git
-
 ```bash
-pip install emulator
+pip install emulator-thw
 ```
 
 ## Usage

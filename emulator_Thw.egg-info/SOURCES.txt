@@ -23,4 +23,5 @@ emulator/sed/sed.exe
 emulator_Thw.egg-info/PKG-INFO
 emulator_Thw.egg-info/SOURCES.txt
 emulator_Thw.egg-info/dependency_links.txt
+emulator_Thw.egg-info/requires.txt
 emulator_Thw.egg-info/top_level.txt

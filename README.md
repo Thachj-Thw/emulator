@@ -4,10 +4,8 @@ this package hỗ trợ điều khiển các phần mềm giả lập (Hiện t�
 
 ## Installation
 
-Sử dụng Git
-
 ```bash
-pip install emulator
+pip install emulator-thw
 ```
 
 ## Usage
