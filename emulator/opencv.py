@@ -43,13 +43,3 @@ def get_pos_img(
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     return pos
-
-
-def existed(obj: str, _in: bytes, threshold: float = 0.8) -> bool:
-    base = cv2.imdecode(np.frombuffer(_in, dtype=np.uint8), flags=cv2.IMREAD_COLOR)
-    tem = cv2.imread(obj)
-    result = cv2.matchTemplate(base, tem, cv2.TM_CCOEFF_NORMED)
-    max_val = cv2.minMaxLoc(result)[1]
-    if max_val > threshold:
-        return True
-    return False

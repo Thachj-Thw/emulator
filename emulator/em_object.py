@@ -3,7 +3,7 @@ from typing import Union, Optional
 import subprocess
 from .option import EmulatorOptions
 from .args import subprocess_args
-from .opencv import get_pos_img, existed
+from .opencv import get_pos_img
 from .node import Node, By
 import time
 import os
@@ -134,6 +134,11 @@ class ObjectEmulator:
             self.error = "The emulator is not started!"
         return self
 
+    def clear_app(self, package_name: str):
+        cmd = f'shell pm clear "{package_name}"'
+        self.error = self._run_adb(cmd)
+        return self
+
     def list_packages(self) -> Optional[list]:
         cmd = f"shell pm list packages | sed 's/^package://'"
         return [package for package in self._run_adb(cmd).split("\r\r\n")[:-1]]
@@ -156,7 +161,7 @@ class ObjectEmulator:
 
     def get_properties(self) -> dict:
         cmd = f"shell getprop | sed 's/[][]//g'"
-        lst = self._run_adb(cmd, decode=False).decode("latin-1").split("\r\r\n")[:-1]
+        lst = self._run_adb(cmd).split("\r\r\n")[:-1]
         return {key: value for key, value in [x.split(": ") for x in lst]}
 
     def down_cpu(self, rate: int):
@@ -217,7 +222,6 @@ class ObjectEmulator:
         lo_path = os.path.normpath(local)
         cmd = f'push "{lo_path}" "{remote}"'
         out = self._run_adb(cmd)
-        print(out)
         if "KB/s" not in out:
             self.error = out
         else:
@@ -226,20 +230,18 @@ class ObjectEmulator:
 
     def capture(self, as_file):
         path = os.path.normpath(as_file)
-        out = self._run_adb("shell screencap -p | base64")
-        if out != "adb is not connected":
+        b_img = self._get_screencap_b64decode()
+        if b_img:
             with open(path, mode="wb") as file:
-                file.write(base64.b64decode(out.replace("\r\r\n", "\n")))
+                file.write(b_img)
             self.error = ""
-        else:
-            self.error = out
         return self
 
     def quit(self) -> None:
         cmd = f'{self.controller} quit {self.this}'
         self._run_cmd(cmd)
 
-    def property_setting(self, options: EmulatorOptions):
+    def setting(self, options: EmulatorOptions):
         opts = " ".join([f"{key} {options.options[key]}" for key in options.options.keys()])
         if opts:
             cmd = f'{self.controller} modify {self.this} {opts}'
@@ -250,9 +252,10 @@ class ObjectEmulator:
         cmd = f'{self.controller} adb {self.this} --command "get-state"'
         return self._run_cmd(cmd)[:-3] == "device"
 
-    def tap(self, pos: position):
-        cmd = f'shell input tap {pos[0]} {pos[1]}'
-        self.error = self._run_adb(cmd)
+    def tap(self, *pos: position):
+        for p in pos:
+            cmd = f'shell input tap {p[0]} {p[1]}'
+            self.error = self._run_adb(cmd)
         return self
 
     def swipe(self, _from: position, to: position, duration: int = 100):
@@ -279,17 +282,17 @@ class ObjectEmulator:
     def app_switcher(self):
         return self.send_event(187)
 
-    def tap_to_img(self, img_path: str, timeout: float = -1, threshold: float = 0.8):
+    def tap_to_img(self, img_path: str, timeout: float = 0, threshold: float = 0.8):
         self.error = ""
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             if timeout == 0:
                 screen = self._get_screencap_b64decode()
+                if not screen:
+                    return self
+                pos = get_pos_img(path, screen, threshold=threshold)
             else:
-                screen = self._wait_img_and_get_screencap(path, 0 if timeout < 0 else timeout, threshold)
-            if not screen:
-                return self
-            pos = get_pos_img(path, screen, threshold=threshold)
+                pos = self._wait_img_and_get_pos(path, 0 if timeout < 0 else timeout, threshold, False)
             if pos:
                 self.tap(pos[0])
             else:
@@ -298,20 +301,19 @@ class ObjectEmulator:
             self.error = f'The path "{img_path}" invalid!'
         return self
 
-    def tap_to_imgs(self, img_path: str, timeout: float = -1, threshold: float = 0.8):
+    def tap_to_imgs(self, img_path: str, timeout: float = 0, threshold: float = 0.8):
         self.error = ""
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             if timeout == 0:
                 screen = self._get_screencap_b64decode()
+                if not screen:
+                    return self
+                pos = get_pos_img(path, screen, multi=True, threshold=threshold)
             else:
-                screen = self._wait_img_and_get_screencap(path, 0 if timeout < 0 else timeout)
-            if not screen:
-                return self
-            pos = get_pos_img(path, screen, multi=True, threshold=threshold)
+                pos = self._wait_img_and_get_pos(path, 0 if timeout < 0 else timeout, threshold, True)
             if pos:
-                for p in pos:
-                    self.tap(p)
+                self.tap(*pos)
             else:
                 self.error = "image not in screen"
         else:
@@ -333,18 +335,20 @@ class ObjectEmulator:
             return base64.b64decode(out.replace("\r\r\n", "\n"))
         self.error = "adb is not connected"
 
-    def _wait_img_and_get_screencap(self, img_path: str, timeout: float, threshold: float):
+    def _wait_img_and_get_pos(self, img_path: str, timeout: float, threshold: float, multi: bool):
         screen = self._get_screencap_b64decode()
         if screen:
             timer = time.perf_counter()
-            while not existed(img_path, screen, threshold):
-                if timeout != 0 and time.perf_counter() - timer > timeout:
-                    self.error = "Timeout"
-                    return
+            pos = get_pos_img(obj=img_path, _in=screen, threshold=threshold, multi=multi)
+            while not pos:
                 screen = self._get_screencap_b64decode()
                 if not screen:
                     return
-            return screen
+                pos = get_pos_img(obj=img_path, _in=screen, threshold=threshold, multi=multi)
+                if timeout != 0 and time.perf_counter() - timer > timeout:
+                    self.error = "Timeout"
+                    return
+            return pos
 
     def dump_xml(self, as_file: str):
         path = os.path.normpath(as_file)
@@ -353,7 +357,7 @@ class ObjectEmulator:
         self.pull("/sdcard/window_dump.xml", path)
         return self
 
-    def get_node(self, by: int, value: str) -> Optional[Node]:
+    def find_node(self, by: int, value: str) -> Optional[Node]:
         self.dump_xml(self.dump)
         with open(self.dump, mode="r", encoding="utf-8") as file:
             xml = file.read()
@@ -374,7 +378,7 @@ class ObjectEmulator:
             if node:
                 return self._create_node(node.group())
 
-    def get_nodes(self, by: int, value: str) -> list[Node]:
+    def find_nodes(self, by: int, value: str) -> list[Node]:
         self.dump_xml(self.dump)
         with open(self.dump, mode="r", encoding="utf-8") as file:
             xml = file.read()
@@ -436,19 +440,19 @@ class ObjectEmulator:
         ctypes.windll.user32.ShowWindow(self.top_hwnd, 1)
         return self
 
-    def _run_adb(self, cmd: str, decode: bool = True) -> Union[str, bytes]:
+    def _run_adb(self, cmd: str, decode: Optional[str] = "latin-1") -> Union[str, bytes]:
         if self.adb_connected():
             cmd = cmd.replace("\"", "\\\"")
             return self._run_cmd(f'{self.controller} adb {self.this} --command "{cmd}"', decode)
-        return "adb is not connected"
+        return "adb is not connected".encode() if decode is None else "adb is not connected"
 
     @staticmethod
-    def _run_cmd(cmd: str, decode: bool = True) -> Union[str, bytes]:
+    def _run_cmd(cmd: str, decode: Optional[str] = "latin-1") -> Union[str, bytes]:
         p = subprocess.Popen(cmd, **subprocess_args(), shell=True)
         o, e = p.communicate()
         if p.wait():
-            return e.decode("utf-8") if decode else e
-        return o.decode("utf-8") if decode else o
+            return e.decode(decode) if decode is not None else e
+        return o.decode(decode) if decode is not None else e
 
     def __str__(self):
         return f"ObjectEmulator(index: {self.index}, name: {self.name})"

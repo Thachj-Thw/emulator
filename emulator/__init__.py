@@ -3,21 +3,21 @@ import os
 import subprocess
 from .args import subprocess_args
 from .em_object import ObjectEmulator
-from typing import Iterator, Optional
+from typing import Iterator, Optional, Union
 
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 
 class LDPlayer:
     """
     Main cotroll all player of LDPlayer
     """
-    def __init__(self, ldplayer_path: str) -> None:
+    def __init__(self, ldplayer_dir: str) -> None:
         self.error = ""
-        ld_dir = os.path.normpath(ldplayer_path)
+        ld_dir = os.path.normpath(ldplayer_dir)
         if not os.path.exists(ld_dir):
-            raise Exception(f'The path: "{ldplayer_path}" invalid!')
+            raise Exception(f'The path: "{ldplayer_dir}" invalid!')
         ldconsole = os.path.join(ld_dir, "ldconsole.exe")
         dnconsole = os.path.join(ld_dir, "dnconsole.exe")
         if os.path.exists(ldconsole):
@@ -75,35 +75,33 @@ class LDPlayer:
         return True
 
     def list_name(self) -> list[str]:
-        p = subprocess.Popen(f'{self.controller} list', **subprocess_args())
-        out, _ = p.communicate()
-        return out.decode().split("\r\n")[:-1]
+        return self._run_cmd(f'{self.controller} list').replace("À×µçÄ£ÄâÆ÷", "LDPlayer").split("\r\n")[:-1]
 
     def list_index(self) -> list[int]:
-        p = subprocess.Popen(f'{self.controller} list2', **subprocess_args())
-        out, _ = p.communicate()
-        return [int(args.split(",")[0]) for args in out.decode().split("\r\n")[:-1]]
+        return [int(args.split(",")[0]) for args in self._run_cmd(f'{self.controller} list2').split("\r\n")[:-1]]
 
     def list_index_name(self) -> list[dict]:
-        p = subprocess.Popen(f'{self.controller} list2', **subprocess_args())
-        out, _ = p.communicate()
         lst = []
-        for string in out.decode().split("\r\n")[:-1]:
+        for string in self._run_cmd(f'{self.controller} list2').split("\r\n")[:-1]:
             args = string.split(",")
-            lst.append({"index": int(args[0]), "name": args[1]})
+            lst.append({"index": int(args[0]), "name": args[1].replace("À×µçÄ£ÄâÆ÷", "LDPlayer")})
         return lst
 
     def list_running(self) -> list[str]:
-        p = subprocess.Popen(f'{self.controller} runninglist', **subprocess_args())
-        out, _ = p.communicate()
-        return out.decode().split("\r\n")[:-1]
+        return self._run_cmd(f'{self.controller} runninglist').split("\r\n")[:-1]
 
     def sort_window(self) -> bool:
         cmd = f'{self.controller} sortWnd'
         self.error = self._run_cmd(cmd)
         return False if self.error else True
 
-    def setting(self, fps: int = None, audio: bool = None, fastplay: bool = None, cleanmode: bool = None) -> bool:
+    def setting(
+        self,
+        fps: int = None,
+        audio: bool = None,
+        fastplay: bool = None,
+        cleanmode: bool = None
+    ) -> bool:
         cmd = f'{self.controller} globalsetting'
         if fps is not None:
             if fps > 60:
@@ -120,12 +118,15 @@ class LDPlayer:
         self.error = self._run_cmd(cmd)
         return False if self.error else True
 
-    def quit(self) -> bool:
+    def quit_all(self) -> bool:
         cmd = f'{self.controller} quitall'
         self.error = self._run_cmd(cmd)
         return False if self.error else True
 
-    def _run_cmd(self, cmd: str, decode: Optional[str] = 'utf-8') -> str:
+    def exit(self) -> bool:
+        return os.system(f'"{self.adb}" kill-server')
+
+    def _run_cmd(self, cmd: str, decode: Optional[str] = 'latin-1') -> Union[str, bytes]:
         p = subprocess.Popen(cmd, **subprocess_args())
         o, e = p.communicate()
         if p.wait():
@@ -136,7 +137,8 @@ class LDPlayer:
         return self
 
     def __exit__(self, _exc_type, _exc_value, traceback):
-        self.quit()
+        self.quit_all()
+        self.kill()
         if traceback:
             print(traceback)
 
