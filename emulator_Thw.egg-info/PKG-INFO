@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: emulator-Thw
-Version: 0.0.3
+Version: 0.0.4
 Summary: package help control emulator
 Home-page: https://github.com/Thachj-Thw/emulator
 Author: Thw
@@ -99,31 +99,31 @@ Danh sách các phương thức có thể sử dụng
 
 - [start](#start)
 
-- [wait_to_started](#waittostarted)
+- [wait_to_started](#wait_to_started)
 
-- [is_running](#isrunning)
+- [is_running](#is_running)
 
 - [restart](#restart)
 
 - [rename](#rename)
 
-- [list_packages](#listpackages)
+- [list_packages](#list_packages)
 
-- [install_app](#installapp)
+- [install_app](#install_app)
 
-- [uninstall_app](#uninstallapp)
+- [uninstall_app](#uninstall_app)
 
-- [run_app](#runapp)
+- [run_app](#run_app)
 
-- [kill_app](#killapp)
+- [kill_app](#kill_app)
 
-- [clear_app](#clearapp)
+- [clear_app](#clear_app)
 
-- [set_locate](#setlocate)
+- [set_locate](#set_locate)
 
-- [update_properties](#updateproperties)
+- [update_properties](#update_properties)
 
-- [get_properties](#getproperties)
+- [get_properties](#get_properties)
 
 - [setting](#setting)
 
@@ -143,33 +143,33 @@ Danh sách các phương thức có thể sử dụng
 
 - [capture](#capture)
 
-- [adb_connected](#adbconnected)
+- [adb_connected](#adb_connected)
 
 - [tap](#tap)
 
-- [tap_to_img](#taptoimg)
+- [tap_to_img](#tap_to_img)
 
-- [tap_to_imgs](#taptoimgs)
+- [tap_to_imgs](#tap_to_imgs)
 
-- [wait_img_existed](#waitimgexisted)
+- [wait_img_existed](#wait_img_existed)
 
 - [swipe](#swipe)
 
-- [send_text](#sendtext)
+- [send_text](#send_text)
 
-- [send_event](#sendevent)
+- [send_event](#send_event)
 
 - [home](#home)
 
 - [back](#back)
 
-- [app_switcher](#appswitcher)
+- [app_switcher](#app_switcher)
 
-- [dump_xml](#dumpxml)
+- [dump_xml](#dump_xml)
 
-- [find_node](#findnode)
+- [find_node](#find_node)
 
-- [find_nodes](#findnodes)
+- [find_nodes](#find_nodes)
 
 - [wait](#wait)
 

@@ -56,8 +56,8 @@ class ObjectEmulator:
         return self
 
     def _update(self) -> bool:
-        cmd = f'{self.controller} list2 | "{self.sed}" -n "/^{self.index}/p"'
-        args = self._run_cmd(cmd)[:-2].split(",")
+        cmd = f'{self.controller} list2 | "{self.sed}" -n "/^{self.index},/p"'
+        args = self._run_cmd(cmd).split("\r\n")[0].split(",")
         if args[2] != "0":
             self.top_hwnd = int(args[2])
             self.bind_hwnd = int(args[3])
@@ -324,7 +324,7 @@ class ObjectEmulator:
         self.error = ""
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
-            self._wait_img_and_get_screencap(path, timeout, threshold)
+            self._wait_img_and_get_pos(path, timeout, threshold, False)
         else:
             self.error = f'The path "{img_path}" invalid'
         return self
@@ -332,7 +332,11 @@ class ObjectEmulator:
     def _get_screencap_b64decode(self) -> Optional[bytes]:
         if self.adb_connected:
             out = self._run_cmd(f'{self.controller} adb {self.this} --command "shell screencap -p | base64"')
-            return base64.b64decode(out.replace("\r\r\n", "\n"))
+            try:
+                return base64.b64decode(out.replace("\r\r\n", "\n"))
+            except Exception:
+                print("output capture error:", out)
+                return
         self.error = "adb is not connected"
 
     def _wait_img_and_get_pos(self, img_path: str, timeout: float, threshold: float, multi: bool):
