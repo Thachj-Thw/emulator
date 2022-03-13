@@ -30,21 +30,53 @@ class ObjectEmulator:
         pid: int = -1,
         pid_vbox: int = -1
     ) -> None:
-        self.parent = parent
-        self.controller = parent.controller
-        self.index = index
-        self.name = name
-        self.top_hwnd = top_hwnd
-        self.bind_hwnd = bind_hwnd
-        self.android = android
-        self.pid = pid
-        self.pid_vbox = pid_vbox
-        self.this = "--index " + str(self.index)
-        self.error = ""
+        self._parent = parent
+        self._controller = parent.controller
+        self._index = index
+        self._name = name
+        self._top_hwnd = top_hwnd
+        self._bind_hwnd = bind_hwnd
+        self._android = android
+        self._pid = pid
+        self._pid_vbox = pid_vbox
+        self._this = "--index " + str(self._index)
+        self._error = ""
+
+    @property
+    def parent(self):
+        return self.parent
+
+    @property
+    def index(self):
+        return self._index
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def top_hwnd(self):
+        return self._top_hwnd
+
+    @property
+    def bind_hwnd(self):
+        return self._bind_hwnd
+
+    @property
+    def pid(self):
+        return self._pid
+
+    @property
+    def pid_vbox(self):
+        return self._pid_vbox
+
+    @property
+    def error(self):
+        return self._error
 
     def start(self, wait: bool = True):
         if not self.is_running():
-            self._run_cmd(f'{self.controller} launch {self.this}')
+            self._run_cmd(f'{self._controller} launch {self._this}')
             if wait:
                 self.wait_to_started()
                 self._update()
@@ -56,14 +88,14 @@ class ObjectEmulator:
         return self
 
     def _update(self) -> bool:
-        cmd = f'{self.controller} list2 | "{self.sed}" -n "/^{self.index},/p"'
+        cmd = f'{self._controller} list2 | "{self.sed}" -n "/^{self._index},/p"'
         args = self._run_cmd(cmd).split("\r\n")[0].split(",")
         if args[2] != "0":
-            self.top_hwnd = int(args[2])
-            self.bind_hwnd = int(args[3])
-            self.android = int(args[4])
-            self.pid = int(args[5])
-            self.pid_vbox = int(args[6])
+            self._top_hwnd = int(args[2])
+            self._bind_hwnd = int(args[3])
+            self._android = int(args[4])
+            self._pid = int(args[5])
+            self._pid_vbox = int(args[6])
             return True
         return False
 
@@ -74,69 +106,69 @@ class ObjectEmulator:
         return self
 
     def is_running(self) -> bool:
-        cmd = f'{self.controller} isrunning {self.this}'
+        cmd = f'{self._controller} isrunning {self._this}'
         return self._run_cmd(cmd) == "running"
 
     def restart(self, wait: bool = True):
         if self.is_running():
-            cmd = f'{self.controller} reboot {self.this}'
+            cmd = f'{self._controller} reboot {self._this}'
             self._run_cmd(cmd)
             if wait:
                 self.wait_to_started()
             else:
                 time.sleep(3)
             self._update()
-            self.error = ""
+            self._error = ""
         else:
-            self.error = "emulator is not running"
+            self._error = "emulator is not running"
         return self
 
     def rename(self, new_name: str):
-        cmd = f'{self.controller} rename {self.this} --title "{new_name}"'
-        self.error = self._run_cmd(cmd)
-        if not self.error:
-            self.name = new_name
+        cmd = f'{self._controller} rename {self._this} --title "{new_name}"'
+        self._error = self._run_cmd(cmd)
+        if not self._error:
+            self._name = new_name
         return self
 
     def install_app(self, source: str):
         if self.is_running():
             path = os.path.normpath(source)
             if os.path.isfile(path):
-                cmd = f'{self.controller} installapp {self.this} --filename "{path}"'
+                cmd = f'{self._controller} installapp {self._this} --filename "{path}"'
             else:
-                cmd = f'{self.controller} installapp {self.this} --packagename "{source}"'
-            self.error = self._run_cmd(cmd)
+                cmd = f'{self._controller} installapp {self._this} --packagename "{source}"'
+            self._error = self._run_cmd(cmd)
         else:
-            self.error = "The emulator is not started!"
+            self._error = "The emulator is not started!"
         return self
 
     def uninstall_app(self, package_name: str):
         if self.is_running():
-            cmd = f'{self.controller} uninstallapp {self.this} --packagename "{package_name}"'
-            self.error = self._run_cmd(cmd)
+            cmd = f'{self._controller} uninstallapp {self._this} --packagename "{package_name}"'
+            self._error = self._run_cmd(cmd)
         else:
-            self.error = "The emulator is not started!"
+            self._error = "The emulator is not started!"
         return self
 
     def run_app(self, package_name: str):
         if self.is_running():
-            cmd = f'{self.controller} runapp {self.this} --packagename "{package_name}"'
-            self.error = self._run_cmd(cmd)
+            cmd = f'{self._controller} runapp {self._this} --packagename "{package_name}"'
+            self._error = self._run_cmd(cmd)
         else:
-            self.error = "The emulator is not started!"
+            self._error = "The emulator is not started!"
         return self
 
     def kill_app(self, package_name: str):
         if self.is_running():
-            cmd = f'{self.controller} killapp {self.this} --packagename "{package_name}"'
-            self.error = self._run_cmd(cmd)
+            cmd = f'{self._controller} killapp {self._this} --packagename "{package_name}"'
+            self._error = self._run_cmd(cmd)
         else:
-            self.error = "The emulator is not started!"
+            self._error = "The emulator is not started!"
         return self
 
     def clear_app(self, package_name: str):
         cmd = f'shell pm clear "{package_name}"'
-        self.error = self._run_adb(cmd)
+        self._error = self._run_adb(cmd)
         return self
 
     def list_packages(self) -> Optional[list]:
@@ -145,17 +177,17 @@ class ObjectEmulator:
 
     def set_locate(self, locate: str):
         if self.is_running():
-            cmd = f'{self.controller} locate {self.this} --LLI "{locate}"'
-            self.error = self._run_cmd(cmd)
+            cmd = f'{self._controller} locate {self._this} --LLI "{locate}"'
+            self._error = self._run_cmd(cmd)
         else:
-            self.error = "The emulator is not started!"
+            self._error = "The emulator is not started!"
         return self
 
     def update_properties(self, prop: dict):
         for key in prop.keys():
-            cmd = f'{self.controller} setprop {self.this} --key "{key}" --value "{prop[key]}"'
-            self.error = self._run_cmd(cmd)
-            if self.error:
+            cmd = f'{self._controller} setprop {self._this} --key "{key}" --value "{prop[key]}"'
+            self._error = self._run_cmd(cmd)
+            if self._error:
                 break
         return self
 
@@ -169,30 +201,30 @@ class ObjectEmulator:
             rate = 0
         if rate > 100:
             rate = 100
-        cmd = f'{self.controller} downcpu {self.this} --rate {int(rate)}'
-        self.error = self._run_cmd(cmd)
+        cmd = f'{self._controller} downcpu {self._this} --rate {int(rate)}'
+        self._error = self._run_cmd(cmd)
         return self
 
     def backup(self, file_path: str):
         path = os.path.normpath(file_path)
-        cmd = f'{self.controller} backup {self.this} --file "{path}"'
-        self.error = self._run_cmd(cmd)
+        cmd = f'{self._controller} backup {self._this} --file "{path}"'
+        self._error = self._run_cmd(cmd)
         return self
 
     def restore(self, file_path: str):
         path = os.path.normpath(file_path)
         if os.path.isfile(path):
-            cmd = f'{self.controller} restore {self.this} --file "{path}"'
-            self.error = self._run_cmd(cmd)
+            cmd = f'{self._controller} restore {self._this} --file "{path}"'
+            self._error = self._run_cmd(cmd)
         else:
-            self.error = f'Path "{file_path}" invalid!'
+            self._error = f'Path "{file_path}" invalid!'
         return self
 
     def action(self, actions: dict):
         for key in actions.keys():
-            cmd = f'{self.controller} action {self.this} --key "{key}" --value "{actions[key]}"'
-            self.error = self._run_cmd(cmd)
-            if self.error:
+            cmd = f'{self._controller} action {self._this} --key "{key}" --value "{actions[key]}"'
+            self._error = self._run_cmd(cmd)
+            if self._error:
                 break
         return self
 
@@ -200,12 +232,12 @@ class ObjectEmulator:
         if self.is_running():
             path = os.path.normpath(file_path)
             if os.path.isfile(path):
-                cmd = f'{self.controller} scan {self.this} --file "{path}"'
-                self.error = self._run_cmd(cmd)
+                cmd = f'{self._controller} scan {self._this} --file "{path}"'
+                self._error = self._run_cmd(cmd)
             else:
-                self.error = f'Path "{file_path}" invalid!'
+                self._error = f'Path "{file_path}" invalid!'
         else:
-            self.error = "emulator is not running"
+            self._error = "emulator is not running"
         return self
 
     def pull(self, remote: str, local: str):
@@ -213,9 +245,9 @@ class ObjectEmulator:
         cmd = f'pull "{remote}" "{lo_path}"'
         out = self._run_adb(cmd)
         if "KB/s" not in out:
-            self.error = out
+            self._error = out
         else:
-            self.error = ""
+            self._error = ""
         return self
 
     def push(self, local: str, remote: str):
@@ -223,9 +255,9 @@ class ObjectEmulator:
         cmd = f'push "{lo_path}" "{remote}"'
         out = self._run_adb(cmd)
         if "KB/s" not in out:
-            self.error = out
+            self._error = out
         else:
-            self.error = ""
+            self._error = ""
         return self
 
     def capture(self, as_file):
@@ -234,43 +266,43 @@ class ObjectEmulator:
         if b_img:
             with open(path, mode="wb") as file:
                 file.write(b_img)
-            self.error = ""
+            self._error = ""
         return self
 
     def quit(self) -> None:
-        cmd = f'{self.controller} quit {self.this}'
+        cmd = f'{self._controller} quit {self._this}'
         self._run_cmd(cmd)
 
     def setting(self, options: EmulatorOptions):
         opts = " ".join([f"{key} {options.options[key]}" for key in options.options.keys()])
         if opts:
-            cmd = f'{self.controller} modify {self.this} {opts}'
-            self.error = self._run_cmd(cmd)
+            cmd = f'{self._controller} modify {self._this} {opts}'
+            self._error = self._run_cmd(cmd)
         return self
 
     def adb_connected(self) -> bool:
-        cmd = f'{self.controller} adb {self.this} --command "get-state"'
+        cmd = f'{self._controller} adb {self._this} --command "get-state"'
         return self._run_cmd(cmd)[:-3] == "device"
 
     def tap(self, *pos: position):
         for p in pos:
             cmd = f'shell input tap {p[0]} {p[1]}'
-            self.error = self._run_adb(cmd)
+            self._error = self._run_adb(cmd)
         return self
 
     def swipe(self, _from: position, to: position, duration: int = 100):
         cmd = f'shell input swipe {_from[0]} {_from[1]} {to[0]} {to[1]} {duration}'
-        self.error = self._run_adb(cmd)
+        self._error = self._run_adb(cmd)
         return self
 
     def send_text(self, text: str):
         cmd = f'shell input text "{text.replace(" ", r"%s")}"'
-        self.error = self._run_adb(cmd)
+        self._error = self._run_adb(cmd)
         return self
 
     def send_event(self, keycode: int):
         cmd = f'shell input keyevent {keycode}'
-        self.error = self._run_adb(cmd)
+        self._error = self._run_adb(cmd)
         return self
 
     def home(self):
@@ -283,7 +315,7 @@ class ObjectEmulator:
         return self.send_event(187)
 
     def tap_to_img(self, img_path: str, timeout: float = 0, threshold: float = 0.8):
-        self.error = ""
+        self._error = ""
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             if timeout == 0:
@@ -296,13 +328,13 @@ class ObjectEmulator:
             if pos:
                 self.tap(pos[0])
             else:
-                self.error = "image not in screen"
+                self._error = "image not in screen"
         else:
-            self.error = f'The path "{img_path}" invalid!'
+            self._error = f'The path "{img_path}" invalid!'
         return self
 
     def tap_to_imgs(self, img_path: str, timeout: float = 0, threshold: float = 0.8):
-        self.error = ""
+        self._error = ""
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             if timeout == 0:
@@ -315,29 +347,29 @@ class ObjectEmulator:
             if pos:
                 self.tap(*pos)
             else:
-                self.error = "image not in screen"
+                self._error = "image not in screen"
         else:
-            self.error = f'The path "{img_path}" invalid!'
+            self._error = f'The path "{img_path}" invalid!'
         return self
 
     def wait_img_existed(self, img_path: str, timeout: float = 0, threshold: float = 0.8):
-        self.error = ""
+        self._error = ""
         path = os.path.normpath(img_path)
         if os.path.isfile(path):
             self._wait_img_and_get_pos(path, timeout, threshold, False)
         else:
-            self.error = f'The path "{img_path}" invalid'
+            self._error = f'The path "{img_path}" invalid'
         return self
 
     def _get_screencap_b64decode(self) -> Optional[bytes]:
         if self.adb_connected:
-            out = self._run_cmd(f'{self.controller} adb {self.this} --command "shell screencap -p | base64"')
+            out = self._run_cmd(f'{self._controller} adb {self._this} --command "shell screencap -p | base64"')
             try:
                 return base64.b64decode(out.replace("\r\r\n", "\n"))
             except Exception:
                 print("output capture error:", out)
                 return
-        self.error = "adb is not connected"
+        self._error = "adb is not connected"
 
     def _wait_img_and_get_pos(self, img_path: str, timeout: float, threshold: float, multi: bool):
         screen = self._get_screencap_b64decode()
@@ -350,7 +382,7 @@ class ObjectEmulator:
                     return
                 pos = get_pos_img(obj=img_path, _in=screen, threshold=threshold, multi=multi)
                 if timeout != 0 and time.perf_counter() - timer > timeout:
-                    self.error = "Timeout"
+                    self._error = "Timeout"
                     return
             return pos
 
@@ -437,17 +469,17 @@ class ObjectEmulator:
         return self
 
     def hide(self):
-        ctypes.windll.user32.ShowWindow(self.top_hwnd, 0)
+        ctypes.windll.user32.ShowWindow(self._top_hwnd, 0)
         return self
 
     def show(self):
-        ctypes.windll.user32.ShowWindow(self.top_hwnd, 1)
+        ctypes.windll.user32.ShowWindow(self._top_hwnd, 1)
         return self
 
     def _run_adb(self, cmd: str, decode: Optional[str] = "latin-1") -> Union[str, bytes]:
         if self.adb_connected():
             cmd = cmd.replace("\"", "\\\"")
-            return self._run_cmd(f'{self.controller} adb {self.this} --command "{cmd}"', decode)
+            return self._run_cmd(f'{self._controller} adb {self._this} --command "{cmd}"', decode)
         return "adb is not connected".encode() if decode is None else "adb is not connected"
 
     @staticmethod
@@ -459,7 +491,7 @@ class ObjectEmulator:
         return o.decode(decode) if decode is not None else e
 
     def __str__(self):
-        return f"ObjectEmulator(index: {self.index}, name: {self.name})"
+        return f"ObjectEmulator(index: {self._index}, name: {self._name})"
 
     def __enter__(self):
         return self

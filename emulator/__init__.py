@@ -6,7 +6,7 @@ from .em_object import ObjectEmulator
 from typing import Iterator, Optional, Union
 
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 
 class LDPlayer:
