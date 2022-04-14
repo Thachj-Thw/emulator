@@ -17,7 +17,6 @@ position = Union[list[int, int], tuple[int, int]]
 
 class ObjectEmulator:
     sed = os.path.join(os.path.dirname(__file__), "sed", "sed.exe")
-    dump = os.path.join(os.path.normpath(os.path.dirname(__file__)), "dump", "window_dump.xml")
 
     def __init__(
         self,
@@ -41,6 +40,7 @@ class ObjectEmulator:
         self._pid_vbox = pid_vbox
         self._this = "--index " + str(self._index)
         self._error = ""
+        self._dump = os.path.join(os.path.normpath(os.path.dirname(__file__)), "dump", self._index + "xml")
 
     @property
     def parent(self):
@@ -394,8 +394,8 @@ class ObjectEmulator:
         return self
 
     def find_node(self, by: int, value: str) -> Optional[Node]:
-        self.dump_xml(self.dump)
-        with open(self.dump, mode="r", encoding="utf-8") as file:
+        self.dump_xml(self._dump)
+        with open(self._dump, mode="r", encoding="utf-8") as file:
             xml = file.read()
         if by == By.TEXT:
             node = re.search(r'(?<=<node )index="\d+" text="%s".*?(?=/>|>)' % value, xml)
@@ -415,8 +415,8 @@ class ObjectEmulator:
                 return self._create_node(node.group())
 
     def find_nodes(self, by: int, value: str) -> list[Node]:
-        self.dump_xml(self.dump)
-        with open(self.dump, mode="r", encoding="utf-8") as file:
+        self.dump_xml(self._dump)
+        with open(self._dump, mode="r", encoding="utf-8") as file:
             xml = file.read()
         if by == By.TEXT:
             nodes = []
