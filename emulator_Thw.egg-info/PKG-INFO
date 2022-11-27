@@ -1,14 +1,12 @@
 Metadata-Version: 2.1
 Name: emulator-Thw
-Version: 0.0.6
+Version: 0.0.7
 Summary: package help control emulator
 Home-page: https://github.com/Thachj-Thw/emulator
 Author: Thw
 Author-email: 
-License: UNKNOWN
 Project-URL: Source, https://github.com/Thachj-Thw/emulator
 Keywords: emulator,android,android emulator
-Platform: UNKNOWN
 Classifier: Development Status :: 5 - Production/Stable
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
@@ -531,5 +529,3 @@ Tắt emulator
 ```python
 em.quit()
 ```
-
-

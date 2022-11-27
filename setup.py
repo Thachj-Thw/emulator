@@ -20,7 +20,7 @@ if sys.argv[-1] == 'update':
 
 setup(
     name='emulator-Thw',
-    version='0.0.6',
+    version='0.0.7',
     description='package help control emulator',
     long_description=long_description,
     long_description_content_type='text/markdown',
