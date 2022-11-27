@@ -40,7 +40,7 @@ class ObjectEmulator:
         self._pid_vbox = pid_vbox
         self._this = "--index " + str(self._index)
         self._error = ""
-        self._dump = os.path.join(os.path.normpath(os.path.dirname(__file__)), "dump", self._index + "xml")
+        self._dump = os.path.join(os.path.normpath(os.path.dirname(__file__)), "dump", str(self._index) + "xml")
 
     @property
     def parent(self):
