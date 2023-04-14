@@ -359,7 +359,7 @@ em.adb_connected()
 
 ### tap
 
-Nhấn vào vị trí pos là 1 tuple hoặc dict có dạng `(x, y)`. Có thể truyền vào nhiều pos để tap nhiều lần vào nhiều vị trí khác nhau.
+Nhấn vào vị trí pos, là 1 list hoặc tuple có dạng `(x, y)`. Có thể truyền vào nhiều pos để tap nhiều lần vào nhiều vị trí khác nhau.
 
 ```python
 em.tap((200, 200))
