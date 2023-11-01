@@ -144,6 +144,10 @@ Danh sách các phương thức có thể sử dụng
 
 - [swipe](#swipe)
 
+- [hold](#hold)
+
+- [drag_drop](#drag_drop)
+
 - [send_text](#send_text)
 
 - [send_event](#send_event)
@@ -407,6 +411,22 @@ Vuốt từ vị trí `_from` tới vị trí `to` trong khoảng thời gian `d
 em.swipe(_from=(100, 200), to=(500, 200), duration=100)
 ```
 
+### hold
+
+Nhấn giữ tại vị trí `pos` trong thời gian `duration` millisecond
+
+```python
+em.hold(pos=(250, 150), duration=500)
+```
+
+### drag_drop
+
+Kéo thả từ vị trí `_from` tới vị trí `to`
+
+```python
+em.drag_drop(_from=(250, 150), to=(1000, 150))
+```
+
 ### send_text
 
 Gửi đoạn văn bản `text`.
@@ -417,16 +437,12 @@ em.send_text(text)
 
 ### send_event
 
-Gửi event tới emulator
+Gửi event tới emulator. Nhấn giữ nếu `long_press = True`
 
 ```python
-import emulator
-from emulator import keys
+import emulator.keys
 
-
-ld = emulator.LDPlayer("path/to/ldplayer dir")
-em = ld.emulators[0].start()
-em.wait(5).send_event(keys.KEYCODE_CALL)
+em.send_event(emulator.keys.KEYCODE_CALL, long_press=False)
 ```
 
 ### home
@@ -463,16 +479,12 @@ em.dump_xml(as_file="path/local.xml")
 
 ### find_node
 
-Trả về `Node` đầu tiên trong window_dump có giá trị khớp với giá trị đã cho, nếu tìm được trả về `None`
+Trả về `Node` đầu tiên trong window_dump có giá trị khớp với giá trị đã cho, nếu không tìm được trả về `None`
 
 ```python
-import emulator
 from emulator.node import By
 
-
-ld = emulator.LDPlayer("path/to/ldplayer")
-em = ld.emulator[0].start().wait(10)
-em.find_node(By.TEXT, "node text")
+node = em.find_node(By.TEXT, "LD Store")
 ```
 
 ### find_nodes
@@ -480,13 +492,9 @@ em.find_node(By.TEXT, "node text")
 Trả về một `list` là tất cả các node trong window_dump có giá trị khới với gía trị đã cho
 
 ```python
-import emulator
 from emulator.node import By
 
-
-ld = emulator.LDPlayer("path/to/ldplayer")
-em = ld.emulators[0].start().wait(10)
-nodes = em.find_nodes(By.TEXT, "text node")
+nodes = em.find_nodes(By.TEXT, "LD Store")
 ```
 
 ### wait

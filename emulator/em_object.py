@@ -293,14 +293,25 @@ class ObjectEmulator:
         cmd = f'shell input swipe {_from[0]} {_from[1]} {to[0]} {to[1]} {duration}'
         self._error = self._run_adb(cmd)
         return self
+    
+    def hold(self, pos: position, duration: int = 500):
+        return self.swipe(pos, pos, duration)
 
     def send_text(self, text: str):
         cmd = f'shell input text "{text.replace(" ", r"%s")}"'
         self._error = self._run_adb(cmd)
         return self
 
-    def send_event(self, keycode: int):
-        cmd = f'shell input keyevent {keycode}'
+    def send_event(self, keycode: int, long_press: bool = False):
+        if long_press:
+            cmd = f'shell input keyevent --longpress {keycode}'
+        else:
+            cmd = f'shell input keyevent {keycode}'
+        self._error = self._run_adb(cmd)
+        return self
+
+    def drag_drop(self, _from: position, to: position):
+        cmd = f'shell input draganddrop {_from[0]} {_from[1]} {to[0]} {to[1]}'
         self._error = self._run_adb(cmd)
         return self
 
