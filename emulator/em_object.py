@@ -244,7 +244,7 @@ class ObjectEmulator:
         lo_path = os.path.normpath(local)
         cmd = f'pull "{remote}" "{lo_path}"'
         out = self._run_adb(cmd)
-        if "KB/s" not in out:
+        if "bytes" not in out:
             self._error = out
         else:
             self._error = ""
@@ -254,7 +254,7 @@ class ObjectEmulator:
         lo_path = os.path.normpath(local)
         cmd = f'push "{lo_path}" "{remote}"'
         out = self._run_adb(cmd)
-        if "KB/s" not in out:
+        if "bytes" not in out:
             self._error = out
         else:
             self._error = ""
