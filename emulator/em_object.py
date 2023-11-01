@@ -40,7 +40,7 @@ class ObjectEmulator:
         self._pid_vbox = pid_vbox
         self._this = "--index " + str(self._index)
         self._error = ""
-        self._dump = os.path.join(os.path.normpath(os.path.dirname(__file__)), "dump", str(self._index) + "xml")
+        self._dump = os.path.join(os.path.normpath(os.path.dirname(__file__)), "dump", str(self._index) + ".xml")
 
     @property
     def parent(self):
@@ -281,8 +281,7 @@ class ObjectEmulator:
         return self
 
     def adb_connected(self) -> bool:
-        cmd = f'{self._controller} adb {self._this} --command "get-state"'
-        return self._run_cmd(cmd)[:-3] == "device"
+        return "connected\r\r\n" == self._run_adb('shell echo "connected"')
 
     def tap(self, *pos: position):
         for p in pos:
@@ -395,6 +394,8 @@ class ObjectEmulator:
 
     def find_node(self, by: int, value: str) -> Optional[Node]:
         self.dump_xml(self._dump)
+        if self._error:
+            return
         with open(self._dump, mode="r", encoding="utf-8") as file:
             xml = file.read()
         if by == By.TEXT:
@@ -416,6 +417,8 @@ class ObjectEmulator:
 
     def find_nodes(self, by: int, value: str) -> list[Node]:
         self.dump_xml(self._dump)
+        if self._error:
+            return
         with open(self._dump, mode="r", encoding="utf-8") as file:
             xml = file.read()
         if by == By.TEXT:
@@ -477,10 +480,8 @@ class ObjectEmulator:
         return self
 
     def _run_adb(self, cmd: str, decode: Optional[str] = "latin-1") -> Union[str, bytes]:
-        if self.adb_connected():
-            cmd = cmd.replace("\"", "\\\"")
-            return self._run_cmd(f'{self._controller} adb {self._this} --command "{cmd}"', decode)
-        return "adb is not connected".encode() if decode is None else "adb is not connected"
+        cmd = cmd.replace("\"", "\\\"")
+        return self._run_cmd(f'{self._controller} adb {self._this} --command "{cmd}"', decode)
 
     @staticmethod
     def _run_cmd(cmd: str, decode: Optional[str] = "latin-1") -> Union[str, bytes]:

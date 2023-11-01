@@ -24,30 +24,30 @@ ld = emulator.LDPlayer(ldplayer_dir="C:/LDPlayer/LDPlayer4.0")
 print(ld.emulators)
 ```
 
-có hai cách để lấy ldplayer trong `LDPlayer` là dùng `index` `ld.emulators[0]` hoặc dùng `name` `ld.emulator["LDPlayer"]`. Tôi khuyên bạn nên sử dụng index, vì name có thể trùng lặp dẫn tới điều khiển sai ldplayer.
+Có hai cách để lấy ldplayer trong `LDPlayer` là dùng `index` `ld.emulators[0]` hoặc dùng `name` `ld.emulator["LDPlayer"]`. Tôi khuyên bạn nên sử dụng index, vì name có thể trùng lặp dẫn tới điều khiển sai ldplayer.
 
-tạo ldplayer mới
+Tạo LDPlayer mới
 
 ```python
 em = ld.new("New-LDPlayer")
 em.start()
 ```
 
-xóa ldplayer
+Xóa LDPlayer
 
 ```python
 em_remove = ld.emulators[0]
 ld.remove(em_remove)
 ```
 
-sao chép ldplayer
+Sao chép LDPlayer
 
 ```python
 em_copy = ld.emulators[0]
 ld.copy(em_copy)
 ```
 
-sắp xếp các cửa sổ ldplayer
+Sắp xếp các cửa sổ LDPlayer
 
 ```python
 for em in ld.emulators:
@@ -55,10 +55,19 @@ for em in ld.emulators:
 ld.sort_window()
 ```
 
-tạo các hành động
+Đặt giá trị ADB debugging (mặc định sẽ tự bật ADB debugging cho tất cả LDPlayer, nhưng có một số phiên bản LDPlayer mặc dù ADB debugging hiển thị đã bật nhưng không thể kết nối và phải thực hiện bật lại một cách thủ công)
 
 ```python
-em = ld.emulator[0]
+em = ld.emulators[0]
+ld.set_ADB_debugging(em, True) # turn on ADB debugging
+ld.set_ADB_debugging(em, False) # turn off ADB debugging
+em.start(wait=False)
+```
+
+Tạo các hành động
+
+```python
+em = ld.emulators[0]
 em.start()
 em.tap((100, 100)) # code từng dòng
 em.wait(3).swipe((200, 100), (10, 100)).wait(3).quit() # code 1 chuỗi hành động

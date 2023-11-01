@@ -4,9 +4,10 @@ import subprocess
 from .args import subprocess_args
 from .em_object import ObjectEmulator
 from typing import Iterator, Optional, Union
+import pkg_resources
+import json
 
-
-__version__ = "0.0.6"
+__version__ = pkg_resources.require("emulator-thw")[0].version
 
 
 class LDPlayer:
@@ -15,11 +16,11 @@ class LDPlayer:
     """
     def __init__(self, ldplayer_dir: str) -> None:
         self.error = ""
-        ld_dir = os.path.normpath(ldplayer_dir)
-        if not os.path.exists(ld_dir):
+        self.ld_dir = os.path.normpath(ldplayer_dir)
+        if not os.path.exists(self.ld_dir):
             raise Exception(f'The path: "{ldplayer_dir}" invalid!')
-        ldconsole = os.path.join(ld_dir, "ldconsole.exe")
-        dnconsole = os.path.join(ld_dir, "dnconsole.exe")
+        ldconsole = os.path.join(self.ld_dir, "ldconsole.exe")
+        dnconsole = os.path.join(self.ld_dir, "dnconsole.exe")
         if os.path.exists(ldconsole):
             self.controller = f'"{ldconsole}"'
         elif os.path.exists(dnconsole):
@@ -29,8 +30,9 @@ class LDPlayer:
         self.emulators = EmulatorContainer()
         for info in self.list_index_name():
             e = ObjectEmulator(self, info["index"], info["name"])
+            self.set_ADB_debugging(e, True)
             self.emulators.update({info["index"]: e, info["name"]: e})
-        self.adb = os.path.join(ld_dir, "adb.exe")
+        self.adb = os.path.join(self.ld_dir, "adb.exe")
         if not os.path.isfile(self.adb):
             raise Exception("ADB not found!")
         os.system(f'"{self.adb}" start-server')
@@ -125,6 +127,15 @@ class LDPlayer:
 
     def exit(self) -> bool:
         return os.system(f'"{self.adb}" kill-server')
+
+    def set_ADB_debugging(self, em_obj: ObjectEmulator, is_on: bool) -> None:
+        # Some LDPlayer version ADB debugging turn on but cannot connect
+        config_file = os.path.join(self.ld_dir, "vms", "config", "leidian" + str(em_obj.index) + ".config")
+        with open(config_file, "r") as f:
+            config = json.load(f)
+        config["basicSettings.adbDebug"] = int(is_on)
+        with open(config_file, "w") as f:
+            json.dump(config, f)
 
     def _run_cmd(self, cmd: str, decode: Optional[str] = 'latin-1') -> Union[str, bytes]:
         p = subprocess.Popen(cmd, **subprocess_args())

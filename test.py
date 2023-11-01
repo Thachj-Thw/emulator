@@ -1,5 +1,5 @@
 import emulator
 import os
 
-ld = emulator.LDPlayer("D:\\LDPlayer\\ld-RONIN-4.0")
+ld = emulator.LDPlayer(r"E:\LDPlayer\LDPlayer9")
 print(ld.list_name())
