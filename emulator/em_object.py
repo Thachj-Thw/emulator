@@ -43,6 +43,14 @@ class ObjectEmulator:
         self._dump = os.path.join(os.path.normpath(os.path.dirname(__file__)), "dump", str(self._index) + ".xml")
 
     @property
+    def controller(self):
+        return self._controller
+    
+    @property
+    def this(self):
+        return self._this
+
+    @property
     def parent(self):
         return self.parent
 
